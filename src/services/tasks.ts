@@ -3,6 +3,7 @@ import { addDays, endOfDay, startOfDay } from "date-fns"
 import { db } from "@/lib/db"
 import { visibleTaskWhere } from "@/lib/permissions"
 import type { TaskDraft } from "@/lib/ai/schemas"
+import type { TaskModule } from "@/generated/prisma/enums"
 
 type VisibilityMember = { id: string; visibilityRole: string }
 
@@ -11,14 +12,10 @@ export type CreateTaskInput = {
   title: string
   description?: string | null
   dueDate?: Date | null
-  module?:
-    | "GENERAL"
-    | "HOME"
-    | "VEHICLE"
-    | "PET"
-    | "CHILD"
-    | "HEALTH"
-    | "SHOPPING"
+  module?: TaskModule
+  petId?: string | null
+  vehicleId?: string | null
+  childId?: string | null
   assignedToMemberId?: string | null
 }
 
@@ -30,10 +27,35 @@ export async function createTask(input: CreateTaskInput) {
       description: input.description ?? null,
       dueDate: input.dueDate ?? null,
       module: input.module ?? "GENERAL",
+      petId: input.petId ?? null,
+      vehicleId: input.vehicleId ?? null,
+      childId: input.childId ?? null,
       assignedToMemberId: input.assignedToMemberId ?? null,
       source: "MANUAL",
     },
   })
+}
+
+// Pending + done split for an entity's own page (pet/vehicle/module), as
+// opposed to getDashboardTasks() which only returns PENDING for the Hoy/
+// Esta semana/Más adelante view.
+export async function getTasksForEntity(
+  member: VisibilityMember,
+  where: { petId: string } | { vehicleId: string } | { householdId: string; module: TaskModule }
+) {
+  const tasks = await db.task.findMany({
+    where: { ...where, ...visibleTaskWhere(member) },
+    orderBy: [{ dueDate: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
+  })
+
+  return {
+    pending: tasks.filter((t) => t.status === "PENDING"),
+    history: tasks
+      .filter((t) => t.status === "DONE")
+      .sort(
+        (a, b) => (b.completedAt?.getTime() ?? 0) - (a.completedAt?.getTime() ?? 0)
+      ),
+  }
 }
 
 export async function setTaskStatus(taskId: string, done: boolean) {

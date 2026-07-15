@@ -8,7 +8,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { createTaskAction } from "@/actions/tasks"
 
-export function QuickAddTaskForm() {
+export function QuickAddTaskForm({
+  hiddenFields,
+}: {
+  hiddenFields?: Record<string, string>
+}) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement>(null)
@@ -29,6 +33,10 @@ export function QuickAddTaskForm() {
         })
       }}
     >
+      {hiddenFields &&
+        Object.entries(hiddenFields).map(([name, value]) => (
+          <input key={name} type="hidden" name={name} value={value} />
+        ))}
       <Input
         name="title"
         placeholder="Añadir algo que recordar…"
