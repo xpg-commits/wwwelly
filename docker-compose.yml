@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: narela-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: narela
+      POSTGRES_PASSWORD: narela_dev_password
+      POSTGRES_DB: narela
+    ports:
+      - "5432:5432"
+    volumes:
+      - narela_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  narela_postgres_data:
