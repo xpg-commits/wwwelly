@@ -1,10 +1,12 @@
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import { ChevronDownIcon } from "lucide-react"
 
 import { auth } from "@/lib/auth"
 import { SignOutButton } from "@/components/auth/sign-out-button"
 import { CreateHouseholdForm } from "@/components/household/create-household-form"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -12,6 +14,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+const MODULE_LINKS = [
+  { href: "/hogar", label: "🏠 Hogar" },
+  { href: "/mascotas", label: "🐶 Mascotas" },
+  { href: "/vehiculos", label: "🚗 Vehículos" },
+  { href: "/ninos", label: "👶 Niños" },
+  { href: "/salud", label: "💊 Salud" },
+  { href: "/compras", label: "🛒 Compras" },
+  { href: "/plantillas", label: "📋 Plantillas de rutinas" },
+]
 
 export default async function AppLayout({
   children,
@@ -55,24 +73,23 @@ export default async function AppLayout({
           <span className="hidden text-foreground sm:inline">
             {household?.name}
           </span>
-          <Link href="/hogar" className="hover:text-foreground">
-            Hogar
-          </Link>
-          <Link href="/mascotas" className="hover:text-foreground">
-            Mascotas
-          </Link>
-          <Link href="/vehiculos" className="hover:text-foreground">
-            Vehículos
-          </Link>
-          <Link href="/ninos" className="hover:text-foreground">
-            Niños
-          </Link>
-          <Link href="/salud" className="hover:text-foreground">
-            Salud
-          </Link>
-          <Link href="/compras" className="hover:text-foreground">
-            Compras
-          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="ghost" size="sm" className="gap-1">
+                  Módulos
+                  <ChevronDownIcon className="size-3.5" />
+                </Button>
+              }
+            />
+            <DropdownMenuContent>
+              {MODULE_LINKS.map((item) => (
+                <DropdownMenuItem key={item.href} render={<Link href={item.href} />}>
+                  {item.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Link href="/asistente" className="hover:text-foreground">
             Asistente
           </Link>

@@ -156,16 +156,20 @@ export async function getDashboardTasks(
 }
 
 // Shared write path for anything that produces a batch of TaskDraft[] — the
-// AI assistant today, routine templates later. Both are just different
-// generators of the same draft shape; this is the one place that turns a
-// draft into a real Task row, so recurrence/visibility defaults stay
-// consistent regardless of where the plan came from.
+// AI assistant (anchored to today) and routine templates (anchored to a
+// trigger date the user picks) are just different generators of the same
+// draft shape; this is the one place that turns a draft into a real Task
+// row, so recurrence/visibility defaults stay consistent either way.
 export async function applyTaskPlan(
   householdId: string,
   drafts: TaskDraft[],
-  options?: { source?: "AI" | "TEMPLATE"; aiGenerationId?: string }
+  options?: {
+    source?: "AI" | "TEMPLATE"
+    aiGenerationId?: string
+    anchorDate?: Date
+  }
 ) {
-  const today = startOfDay(new Date())
+  const anchor = startOfDay(options?.anchorDate ?? new Date())
   if (drafts.length === 0) return []
 
   return db.$transaction(
@@ -176,7 +180,7 @@ export async function applyTaskPlan(
           title: draft.title,
           description: draft.description,
           module: draft.module,
-          dueDate: addDays(today, draft.dueDateOffsetDays),
+          dueDate: addDays(anchor, draft.dueDateOffsetDays),
           source: options?.source ?? "AI",
           aiGenerationId: options?.aiGenerationId,
         },
