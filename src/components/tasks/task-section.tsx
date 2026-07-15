@@ -5,6 +5,7 @@ type TaskForSection = {
   title: string
   dueDate: Date | null
   completedAt?: Date | null
+  subtitle?: string | null
 }
 
 export function TaskSection({
@@ -44,6 +45,7 @@ export function TaskSection({
               overdue={markOverdue && Boolean(task.dueDate && task.dueDate < now)}
               defaultDone={showAsDone}
               completedAt={showAsDone ? task.completedAt : null}
+              subtitle={task.subtitle}
             />
           ))}
         </div>

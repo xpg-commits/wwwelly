@@ -25,10 +25,23 @@ export async function createTaskAction(formData: FormData): Promise<ActionResult
 
   const petId = String(formData.get("petId") ?? "").trim() || undefined
   const vehicleId = String(formData.get("vehicleId") ?? "").trim() || undefined
+  let childId = String(formData.get("childId") ?? "").trim() || undefined
+  let relatedMemberId = String(formData.get("relatedMemberId") ?? "").trim() || undefined
 
-  // petId/vehicleId are hidden-input values from our own forms, but still
-  // client-supplied — verify they actually belong to this household before
-  // trusting them, same reasoning as the ownership check in setTaskStatusAction.
+  // The "¿para quién?" selector (used on /salud) packs type+id into one
+  // value — e.g. "child:abc123" or "member:def456" — since a health task
+  // targets exactly one of the two.
+  const personSelector = String(formData.get("personSelector") ?? "").trim()
+  if (personSelector) {
+    const [kind, id] = personSelector.split(":")
+    if (kind === "child") childId = id
+    if (kind === "member") relatedMemberId = id
+  }
+
+  // Every foreign key here is a hidden/select value from our own forms, but
+  // still client-supplied — verify each actually belongs to this household
+  // before trusting it, same reasoning as the ownership check in
+  // setTaskStatusAction.
   if (petId) {
     const pet = await db.pet.findUnique({ where: { id: petId }, select: { householdId: true } })
     if (!pet || pet.householdId !== householdId) {
@@ -44,8 +57,35 @@ export async function createTaskAction(formData: FormData): Promise<ActionResult
       return { success: false, error: "Vehículo no encontrado." }
     }
   }
+  if (childId) {
+    const child = await db.child.findUnique({
+      where: { id: childId },
+      select: { householdId: true },
+    })
+    if (!child || child.householdId !== householdId) {
+      return { success: false, error: "No se encontró ese hijo/a." }
+    }
+  }
+  if (relatedMemberId) {
+    const relatedMember = await db.householdMember.findUnique({
+      where: { id: relatedMemberId },
+      select: { organizationId: true },
+    })
+    if (!relatedMember || relatedMember.organizationId !== householdId) {
+      return { success: false, error: "No se encontró ese miembro." }
+    }
+  }
 
-  await taskService.createTask({ householdId, title, dueDate, module, petId, vehicleId })
+  await taskService.createTask({
+    householdId,
+    title,
+    dueDate,
+    module,
+    petId,
+    vehicleId,
+    childId,
+    relatedMemberId,
+  })
 
   return { success: true }
 }

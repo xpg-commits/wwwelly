@@ -16,6 +16,7 @@ export type CreateTaskInput = {
   petId?: string | null
   vehicleId?: string | null
   childId?: string | null
+  relatedMemberId?: string | null
   assignedToMemberId?: string | null
 }
 
@@ -30,21 +31,27 @@ export async function createTask(input: CreateTaskInput) {
       petId: input.petId ?? null,
       vehicleId: input.vehicleId ?? null,
       childId: input.childId ?? null,
+      relatedMemberId: input.relatedMemberId ?? null,
       assignedToMemberId: input.assignedToMemberId ?? null,
       source: "MANUAL",
     },
   })
 }
 
-// Pending + done split for an entity's own page (pet/vehicle/module), as
-// opposed to getDashboardTasks() which only returns PENDING for the Hoy/
+// Pending + done split for an entity's own page (pet/vehicle/child/module),
+// as opposed to getDashboardTasks() which only returns PENDING for the Hoy/
 // Esta semana/Más adelante view.
 export async function getTasksForEntity(
   member: VisibilityMember,
-  where: { petId: string } | { vehicleId: string } | { householdId: string; module: TaskModule }
+  where:
+    | { petId: string }
+    | { vehicleId: string }
+    | { childId: string }
+    | { householdId: string; module: TaskModule }
 ) {
   const tasks = await db.task.findMany({
     where: { ...where, ...visibleTaskWhere(member) },
+    include: { child: true, relatedMember: { include: { user: true } } },
     orderBy: [{ dueDate: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
   })
 

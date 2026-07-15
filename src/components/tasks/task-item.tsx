@@ -7,6 +7,7 @@ import { format } from "date-fns"
 import { es } from "date-fns/locale"
 
 import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
 import { setTaskStatusAction } from "@/actions/tasks"
 
 type TaskItemProps = {
@@ -16,6 +17,7 @@ type TaskItemProps = {
   overdue?: boolean
   defaultDone?: boolean
   completedAt?: Date | null
+  subtitle?: string | null
 }
 
 export function TaskItem({
@@ -25,6 +27,7 @@ export function TaskItem({
   overdue = false,
   defaultDone = false,
   completedAt,
+  subtitle,
 }: TaskItemProps) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -51,7 +54,10 @@ export function TaskItem({
           })
         }}
       />
-      <span className="flex-1 text-sm">{title}</span>
+      <span className="flex flex-1 items-center gap-2 text-sm">
+        {title}
+        {subtitle && <Badge variant="secondary">{subtitle}</Badge>}
+      </span>
       {dateLabel && (
         <span
           className={

@@ -64,6 +64,12 @@ export default async function AppLayout({
           <Link href="/vehiculos" className="hover:text-foreground">
             Vehículos
           </Link>
+          <Link href="/ninos" className="hover:text-foreground">
+            Niños
+          </Link>
+          <Link href="/salud" className="hover:text-foreground">
+            Salud
+          </Link>
           <Link href="/asistente" className="hover:text-foreground">
             Asistente
           </Link>
