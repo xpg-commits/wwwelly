@@ -1,7 +1,6 @@
 "use server"
 
 import { headers } from "next/headers"
-import { redirect } from "next/navigation"
 import { APIError } from "better-auth"
 
 import { auth } from "@/lib/auth"
@@ -40,7 +39,11 @@ export async function createHousehold(formData: FormData): Promise<ActionResult>
     throw error
   }
 
-  redirect("/dashboard")
+  // Navigation is done client-side (router.push + router.refresh) instead of
+  // redirect() here: this action is invoked via a manual await from a client
+  // event handler, not as a direct <form action={...}> reference, so Next
+  // doesn't auto-follow a server-thrown redirect in that call shape.
+  return { success: true, data: undefined }
 }
 
 export async function inviteMember(
@@ -104,5 +107,5 @@ export async function acceptInvite(invitationId: string): Promise<ActionResult> 
     throw error
   }
 
-  redirect("/dashboard")
+  return { success: true, data: undefined }
 }

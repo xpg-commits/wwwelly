@@ -1,6 +1,7 @@
 "use client"
 
 import { useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { createHousehold } from "@/actions/household"
 
 export function CreateHouseholdForm() {
+  const router = useRouter()
   const [pending, startTransition] = useTransition()
 
   return (
@@ -19,7 +21,10 @@ export function CreateHouseholdForm() {
           const result = await createHousehold(formData)
           if (!result.success) {
             toast.error(result.error)
+            return
           }
+          router.push("/dashboard")
+          router.refresh()
         })
       }}
     >
