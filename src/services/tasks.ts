@@ -2,6 +2,7 @@ import { addDays, endOfDay, startOfDay } from "date-fns"
 
 import { db } from "@/lib/db"
 import { visibleTaskWhere } from "@/lib/permissions"
+import type { TaskDraft } from "@/lib/ai/schemas"
 
 type VisibilityMember = { id: string; visibilityRole: string }
 
@@ -75,6 +76,36 @@ export async function getDashboardTasks(
   const later = tasks.filter((t) => !t.dueDate || t.dueDate > weekEnd)
 
   return { today, thisWeek, later }
+}
+
+// Shared write path for anything that produces a batch of TaskDraft[] — the
+// AI assistant today, routine templates later. Both are just different
+// generators of the same draft shape; this is the one place that turns a
+// draft into a real Task row, so recurrence/visibility defaults stay
+// consistent regardless of where the plan came from.
+export async function applyTaskPlan(
+  householdId: string,
+  drafts: TaskDraft[],
+  options?: { source?: "AI" | "TEMPLATE"; aiGenerationId?: string }
+) {
+  const today = startOfDay(new Date())
+  if (drafts.length === 0) return []
+
+  return db.$transaction(
+    drafts.map((draft) =>
+      db.task.create({
+        data: {
+          householdId,
+          title: draft.title,
+          description: draft.description,
+          module: draft.module,
+          dueDate: addDays(today, draft.dueDateOffsetDays),
+          source: options?.source ?? "AI",
+          aiGenerationId: options?.aiGenerationId,
+        },
+      })
+    )
+  )
 }
 
 export async function countCompletedThisWeek(householdId: string, member: VisibilityMember) {

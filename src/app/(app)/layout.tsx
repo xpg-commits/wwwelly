@@ -55,6 +55,9 @@ export default async function AppLayout({
           <span className="hidden text-foreground sm:inline">
             {household?.name}
           </span>
+          <Link href="/asistente" className="hover:text-foreground">
+            Asistente
+          </Link>
           <Link href="/ajustes/miembros" className="hover:text-foreground">
             Miembros
           </Link>
