@@ -1,21 +1,25 @@
 "use client"
 
-import { useRef, useTransition } from "react"
+import { useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { DatePickerField } from "@/components/ui/date-picker-field"
 import { RecurrenceFields } from "@/components/tasks/recurrence-fields"
 import { createTaskAction } from "@/actions/tasks"
 
 export function QuickAddTaskForm({
   hiddenFields,
+  onSuccess,
 }: {
   hiddenFields?: Record<string, string>
+  onSuccess?: () => void
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
+  const [dueDate, setDueDate] = useState("")
   const formRef = useRef<HTMLFormElement>(null)
 
   return (
@@ -30,7 +34,9 @@ export function QuickAddTaskForm({
             return
           }
           formRef.current?.reset()
+          setDueDate("")
           router.refresh()
+          onSuccess?.()
         })
       }}
     >
@@ -45,7 +51,13 @@ export function QuickAddTaskForm({
           required
           className="flex-1"
         />
-        <Input name="dueDate" type="date" className="sm:w-40" />
+        <DatePickerField
+          name="dueDate"
+          value={dueDate}
+          onChange={setDueDate}
+          placeholder="Fecha"
+          className="sm:w-40"
+        />
         <Button type="submit" disabled={pending}>
           {pending ? "Añadiendo…" : "Añadir"}
         </Button>

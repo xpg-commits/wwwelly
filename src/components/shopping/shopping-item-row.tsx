@@ -12,7 +12,7 @@ export function ShoppingItemRow({ id, name }: { id: string; name: string }) {
   const [pending, startTransition] = useTransition()
 
   return (
-    <label className="flex items-center gap-3 rounded-md border px-3 py-2.5 has-[[data-disabled]]:opacity-60">
+    <label className="list-row has-[[data-disabled]]:opacity-60">
       <Checkbox
         disabled={pending}
         onCheckedChange={(checked) => {

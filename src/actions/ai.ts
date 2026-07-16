@@ -3,7 +3,10 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { z } from "zod"
 
+import { headers } from "next/headers"
+
 import { requireActiveMember } from "@/lib/session"
+import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { assertAiQuotaAvailable, AiQuotaExceededError } from "@/lib/aiQuota"
 import {
@@ -11,9 +14,36 @@ import {
   AiRefusalError,
   AiInvalidOutputError,
   TASK_PLANNER_MODEL,
+  type HouseholdEntityContext,
 } from "@/lib/ai/taskPlanner"
 import { TaskDraftSchema, type TaskDraft } from "@/lib/ai/schemas"
 import { applyTaskPlan } from "@/services/tasks"
+import { listPets } from "@/services/pets"
+import { listVehicles } from "@/services/vehicles"
+import { listChildren } from "@/services/children"
+
+async function buildEntityContext(householdId: string): Promise<HouseholdEntityContext> {
+  const [pets, vehicles, children, household] = await Promise.all([
+    listPets(householdId),
+    listVehicles(householdId),
+    listChildren(householdId),
+    auth.api.getFullOrganization({ headers: await headers() }),
+  ])
+
+  return {
+    pets: pets.map((p) => ({ id: p.id, label: `${p.name} (${p.species})` })),
+    vehicles: vehicles.map((v) => ({
+      id: v.id,
+      label: [v.alias, v.make, v.model].filter(Boolean).join(" "),
+    })),
+    children: children.map((c) => ({ id: c.id, label: c.name })),
+    members: (household?.members ?? []).map((m) => ({
+      id: m.id,
+      label:
+        (m as { displayName?: string | null }).displayName ?? m.user.name ?? m.user.email,
+    })),
+  }
+}
 
 type ActionResult<T = undefined> =
   | { success: true; data: T }
@@ -21,7 +51,13 @@ type ActionResult<T = undefined> =
 
 export async function generateTaskPlanAction(
   formData: FormData
-): Promise<ActionResult<{ aiGenerationId: string; drafts: TaskDraft[] }>> {
+): Promise<
+  ActionResult<{
+    aiGenerationId: string
+    drafts: TaskDraft[]
+    entityContext: HouseholdEntityContext
+  }>
+> {
   const inputText = String(formData.get("inputText") ?? "").trim()
   if (!inputText) {
     return { success: false, error: "Escribe una frase primero." }
@@ -49,12 +85,16 @@ export async function generateTaskPlanAction(
   })
 
   try {
-    const drafts = await generatePlanFromText(inputText)
+    const entityContext = await buildEntityContext(householdId)
+    const drafts = await generatePlanFromText(inputText, entityContext)
     await db.aiGeneration.update({
       where: { id: generation.id },
       data: { status: "COMPLETED" },
     })
-    return { success: true, data: { aiGenerationId: generation.id, drafts } }
+    return {
+      success: true,
+      data: { aiGenerationId: generation.id, drafts, entityContext },
+    }
   } catch (error) {
     const message = await describeAiError(error)
     await db.aiGeneration.update({
@@ -91,7 +131,33 @@ export async function confirmTaskPlanAction(
     return { success: false, error: "No hay tareas que confirmar." }
   }
 
-  await applyTaskPlan(householdId, parsed.data, {
+  // The entity ids on each draft came back from the client — re-verify they
+  // still belong to this household before trusting them, same reasoning as
+  // every other client-supplied foreign key in this app. A stale/tampered id
+  // just drops the link rather than failing the whole confirm.
+  const [pets, vehicles, children, household] = await Promise.all([
+    listPets(householdId),
+    listVehicles(householdId),
+    listChildren(householdId),
+    auth.api.getFullOrganization({ headers: await headers() }),
+  ])
+  const validPetIds = new Set(pets.map((p) => p.id))
+  const validVehicleIds = new Set(vehicles.map((v) => v.id))
+  const validChildIds = new Set(children.map((c) => c.id))
+  const validMemberIds = new Set((household?.members ?? []).map((m) => m.id))
+
+  const sanitized = parsed.data.map((draft) => ({
+    ...draft,
+    petId: draft.petId && validPetIds.has(draft.petId) ? draft.petId : null,
+    vehicleId: draft.vehicleId && validVehicleIds.has(draft.vehicleId) ? draft.vehicleId : null,
+    childId: draft.childId && validChildIds.has(draft.childId) ? draft.childId : null,
+    relatedMemberId:
+      draft.relatedMemberId && validMemberIds.has(draft.relatedMemberId)
+        ? draft.relatedMemberId
+        : null,
+  }))
+
+  await applyTaskPlan(householdId, sanitized, {
     source: "AI",
     aiGenerationId,
   })

@@ -183,6 +183,12 @@ export async function applyTaskPlan(
           dueDate: addDays(anchor, draft.dueDateOffsetDays),
           source: options?.source ?? "AI",
           aiGenerationId: options?.aiGenerationId,
+          recurrenceType: draft.recurrenceType ?? "NONE",
+          recurrenceIntervalDays: draft.recurrenceIntervalDays,
+          petId: draft.petId,
+          vehicleId: draft.vehicleId,
+          childId: draft.childId,
+          relatedMemberId: draft.relatedMemberId,
         },
       })
     )

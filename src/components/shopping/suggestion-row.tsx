@@ -20,7 +20,7 @@ export function SuggestionRow({
   const [pending, startTransition] = useTransition()
 
   return (
-    <div className="flex items-center justify-between rounded-md border border-dashed px-3 py-2.5">
+    <div className="flex items-center justify-between rounded-xl bg-accent/50 px-3.5 py-3">
       <div>
         <p className="text-sm">¿Necesitas volver a comprar {name.toLowerCase()}?</p>
         {avgPurchaseIntervalDays && (

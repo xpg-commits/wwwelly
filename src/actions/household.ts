@@ -46,6 +46,26 @@ export async function createHousehold(formData: FormData): Promise<ActionResult>
   return { success: true, data: undefined }
 }
 
+// A brand-new session (e.g. a fresh login) doesn't inherit the household the
+// user was last active in — Better Auth leaves activeOrganizationId null
+// until something sets it explicitly. Without this, a returning user with
+// an existing household would see the "create your household" screen again.
+export async function activateHouseholdAction(organizationId: string): Promise<ActionResult> {
+  try {
+    await auth.api.setActiveOrganization({
+      body: { organizationId },
+      headers: await headers(),
+    })
+  } catch (error) {
+    if (error instanceof APIError) {
+      return { success: false, error: error.body?.message ?? "No se pudo activar el hogar." }
+    }
+    throw error
+  }
+
+  return { success: true, data: undefined }
+}
+
 export async function inviteMember(
   formData: FormData
 ): Promise<ActionResult<{ invitationId: string }>> {

@@ -1,6 +1,5 @@
 import { requireActiveMember } from "@/lib/session"
 import { getDashboardTasks, countCompletedThisWeek } from "@/services/tasks"
-import { QuickAddTaskForm } from "@/components/tasks/quick-add-task-form"
 import { TaskSection } from "@/components/tasks/task-section"
 
 export default async function DashboardPage() {
@@ -16,18 +15,16 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-6 py-10">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="font-heading text-3xl font-semibold tracking-tight">
           Buenos días, {firstName} 👋
         </h1>
         {completedThisWeek > 0 && (
-          <p className="text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground">
             Esta semana has vaciado tu cabeza de {completedThisWeek}{" "}
             {completedThisWeek === 1 ? "tarea" : "tareas"}.
           </p>
         )}
       </div>
-
-      <QuickAddTaskForm />
 
       <div className="space-y-6">
         <TaskSection

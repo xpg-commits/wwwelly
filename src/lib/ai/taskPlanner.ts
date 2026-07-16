@@ -27,7 +27,51 @@ export class AiInvalidOutputError extends Error {
   }
 }
 
-export async function generatePlanFromText(inputText: string): Promise<TaskDraft[]> {
+export type HouseholdEntityContext = {
+  pets: { id: string; label: string }[]
+  vehicles: { id: string; label: string }[]
+  children: { id: string; label: string }[]
+  members: { id: string; label: string }[]
+}
+
+function formatEntityContext(context?: HouseholdEntityContext): string {
+  if (!context) return ""
+  const sections: string[] = []
+  if (context.pets.length > 0) {
+    sections.push(
+      "Mascotas: " + context.pets.map((p) => `${p.label} (id=${p.id})`).join(", ")
+    )
+  }
+  if (context.vehicles.length > 0) {
+    sections.push(
+      "Vehículos: " + context.vehicles.map((v) => `${v.label} (id=${v.id})`).join(", ")
+    )
+  }
+  if (context.children.length > 0) {
+    sections.push(
+      "Hijos/as: " + context.children.map((c) => `${c.label} (id=${c.id})`).join(", ")
+    )
+  }
+  if (context.members.length > 0) {
+    sections.push(
+      "Miembros del hogar: " +
+        context.members.map((m) => `${m.label} (id=${m.id})`).join(", ")
+    )
+  }
+  if (sections.length === 0) return ""
+  return (
+    "\n\nElementos ya registrados en este hogar (usa el id EXACTO tal cual aparece " +
+    "aquí solo si la frase se refiere claramente a uno de ellos — por nombre, tipo, o " +
+    "contexto inequívoco; si hay duda o no se menciona ninguno, deja los cuatro campos " +
+    "de vínculo en null; nunca inventes un id que no esté en esta lista):\n" +
+    sections.join("\n")
+  )
+}
+
+export async function generatePlanFromText(
+  inputText: string,
+  entityContext?: HouseholdEntityContext
+): Promise<TaskDraft[]> {
   const response = await client.messages.parse({
     model: TASK_PLANNER_MODEL,
     max_tokens: 2048,
@@ -39,7 +83,20 @@ export async function generatePlanFromText(inputText: string): Promise<TaskDraft
       "frase no da pie a tareas concretas, devuelve una lista vacía en vez de inventar. No " +
       "asumas una fecha exacta que el usuario no ha dado — elige el offset que mejor encaje " +
       '(por ejemplo, "empieza el colegio en septiembre" implica tareas varias semanas antes, no ' +
-      "el mismo día).",
+      "el mismo día). Si el usuario pide explícitamente que algo se repita (\"anual\", \"cada " +
+      "año\", \"cada 3 meses\", \"todos los meses\"...), rellena recurrenceIntervalDays (el " +
+      "intervalo en días: ~365 para anual, ~30 para mensual) y recurrenceType: usa " +
+      "FIXED_SCHEDULE cuando la recurrencia depende de una fecha fija externa que no se mueve " +
+      "aunque la tarea se complete tarde (ITV, seguro, impuestos, renovación de documento), y " +
+      "REACTIVE cuando depende de cuándo se completa de verdad la propia tarea (cambiar un " +
+      "filtro, desparasitar a la mascota). Dos tareas relacionadas (p. ej. un aviso y su " +
+      "recordatorio de seguimiento a los pocos días) pueden compartir el mismo intervalo y tipo " +
+      "de recurrencia si el usuario describe que ambas se repiten con el ciclo. Si no se pide " +
+      "repetición, deja ambos campos en null. Cada tarea también lleva petId, vehicleId, " +
+      "childId y relatedMemberId — normalmente los cuatro en null, salvo que la frase se " +
+      "refiera claramente a un elemento ya registrado de la lista de contexto que te doy más " +
+      "abajo, en cuyo caso rellena solo el campo correspondiente con su id exacto." +
+      formatEntityContext(entityContext),
     messages: [{ role: "user", content: inputText }],
     output_config: { format: zodOutputFormat(TaskPlanSchema) },
   })

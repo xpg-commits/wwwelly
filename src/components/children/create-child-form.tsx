@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { DatePickerField } from "@/components/ui/date-picker-field"
 import { Label } from "@/components/ui/label"
 import { createChildAction } from "@/actions/children"
 
@@ -13,6 +14,7 @@ export function CreateChildForm() {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [open, setOpen] = useState(false)
+  const [birthDate, setBirthDate] = useState("")
   const formRef = useRef<HTMLFormElement>(null)
 
   if (!open) {
@@ -35,6 +37,7 @@ export function CreateChildForm() {
             return
           }
           formRef.current?.reset()
+          setBirthDate("")
           setOpen(false)
           router.refresh()
         })
@@ -45,8 +48,13 @@ export function CreateChildForm() {
         <Input id="child-name" name="name" placeholder="Marta" required />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="child-birthdate">Fecha de nacimiento (opcional)</Label>
-        <Input id="child-birthdate" name="birthDate" type="date" />
+        <Label>Fecha de nacimiento (opcional)</Label>
+        <DatePickerField
+          name="birthDate"
+          value={birthDate}
+          onChange={setBirthDate}
+          captionLayout="dropdown"
+        />
       </div>
       <div className="flex gap-2 sm:col-span-2">
         <Button type="submit" disabled={pending}>

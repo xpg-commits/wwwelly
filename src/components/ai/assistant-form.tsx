@@ -16,6 +16,7 @@ import {
   confirmTaskPlanAction,
 } from "@/actions/ai"
 import type { TaskDraft } from "@/lib/ai/schemas"
+import type { HouseholdEntityContext } from "@/lib/ai/taskPlanner"
 
 const MODULE_LABEL: Record<TaskDraft["module"], string> = {
   GENERAL: "General",
@@ -27,9 +28,44 @@ const MODULE_LABEL: Record<TaskDraft["module"], string> = {
   SHOPPING: "Compras",
 }
 
-type Plan = { aiGenerationId: string; drafts: TaskDraft[] }
+function recurrenceLabel(draft: TaskDraft): string | null {
+  if (!draft.recurrenceType || !draft.recurrenceIntervalDays) return null
+  const days = draft.recurrenceIntervalDays
+  if (days >= 350 && days <= 380) return "🔁 Anual"
+  if (days >= 28 && days <= 31) return "🔁 Mensual"
+  return `🔁 Cada ${days} días`
+}
 
-export function AssistantForm() {
+function linkedEntityLabel(
+  draft: TaskDraft,
+  entityContext: HouseholdEntityContext
+): string | null {
+  if (draft.petId) {
+    const pet = entityContext.pets.find((p) => p.id === draft.petId)
+    return pet ? `🐾 ${pet.label}` : null
+  }
+  if (draft.vehicleId) {
+    const vehicle = entityContext.vehicles.find((v) => v.id === draft.vehicleId)
+    return vehicle ? `🚗 ${vehicle.label}` : null
+  }
+  if (draft.childId) {
+    const child = entityContext.children.find((c) => c.id === draft.childId)
+    return child ? `👶 ${child.label}` : null
+  }
+  if (draft.relatedMemberId) {
+    const member = entityContext.members.find((m) => m.id === draft.relatedMemberId)
+    return member ? `🙋 ${member.label}` : null
+  }
+  return null
+}
+
+type Plan = {
+  aiGenerationId: string
+  drafts: TaskDraft[]
+  entityContext: HouseholdEntityContext
+}
+
+export function AssistantForm({ onSuccess }: { onSuccess?: () => void } = {}) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [plan, setPlan] = useState<Plan | null>(null)
@@ -100,6 +136,14 @@ export function AssistantForm() {
                         <Badge variant="secondary">
                           {MODULE_LABEL[draft.module]}
                         </Badge>
+                        {recurrenceLabel(draft) && (
+                          <Badge variant="outline">{recurrenceLabel(draft)}</Badge>
+                        )}
+                        {linkedEntityLabel(draft, plan.entityContext) && (
+                          <Badge variant="outline">
+                            {linkedEntityLabel(draft, plan.entityContext)}
+                          </Badge>
+                        )}
                       </div>
                       {draft.description && (
                         <p className="text-sm text-muted-foreground">
@@ -135,6 +179,7 @@ export function AssistantForm() {
                   toast.success(
                     `${selected.length} ${selected.length === 1 ? "tarea creada" : "tareas creadas"}.`
                   )
+                  onSuccess?.()
                   router.push("/dashboard")
                   router.refresh()
                 })

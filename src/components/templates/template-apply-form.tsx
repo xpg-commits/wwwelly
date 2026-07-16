@@ -7,7 +7,7 @@ import { addDays, format } from "date-fns"
 import { es } from "date-fns/locale"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { DatePickerField } from "@/components/ui/date-picker-field"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -50,17 +50,19 @@ export function TemplateApplyForm({
     description: t.description,
     module: t.module,
     dueDateOffsetDays: t.dayOffset,
+    recurrenceType: null,
+    recurrenceIntervalDays: null,
+    petId: null,
+    vehicleId: null,
+    childId: null,
+    relatedMemberId: null,
   }))
 
   if (!triggerDate) {
     return (
       <div className="space-y-3">
-        <Label htmlFor="trigger-date">{triggerLabel}</Label>
-        <Input
-          id="trigger-date"
-          type="date"
-          onChange={(e) => setTriggerDate(e.target.value)}
-        />
+        <Label>{triggerLabel}</Label>
+        <DatePickerField value={triggerDate} onChange={setTriggerDate} />
       </div>
     )
   }
