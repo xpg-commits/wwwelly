@@ -34,6 +34,7 @@ import {
 } from "@/lib/modules"
 import { Logo } from "@/components/brand/logo"
 import { PageTransition } from "@/components/layout/page-transition"
+import { BottomNav } from "@/components/layout/bottom-nav"
 
 export default async function AppLayout({
   children,
@@ -119,7 +120,8 @@ export default async function AppLayout({
             {household?.name}
           </span>
         </div>
-        <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+        {/* Desktop only — mobile gets the bottom nav instead of a menu. */}
+        <nav className="hidden items-center gap-2 text-sm text-muted-foreground md:flex">
           <DropdownMenu>
             <DropdownMenuTrigger
               className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-1")}
@@ -138,9 +140,15 @@ export default async function AppLayout({
           <AddTaskDialog members={memberOptions} currentMemberId={myMember?.id ?? ""} />
         </nav>
       </header>
-      <main className="flex flex-1 flex-col">
+      <main className="flex flex-1 flex-col pb-24 md:pb-0">
         <PageTransition>{children}</PageTransition>
       </main>
+      <BottomNav
+        enabledModules={Array.from(enabledSet)}
+        moduleOrder={order}
+        members={memberOptions}
+        currentMemberId={myMember?.id ?? ""}
+      />
     </div>
   )
 }

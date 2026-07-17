@@ -23,10 +23,14 @@ export function AddTaskDialog({
   members,
   currentMemberId,
   floating = false,
+  navIcon = false,
 }: {
   members: { id: string; name: string }[]
   currentMemberId: string
   floating?: boolean
+  // Sits inline inside the bottom nav pill, popped up slightly as the
+  // row's one elevated "primary action" button.
+  navIcon?: boolean
 }) {
   const [open, setOpen] = useState(false)
 
@@ -34,7 +38,16 @@ export function AddTaskDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          floating ? (
+          navIcon ? (
+            <Button
+              size="icon-lg"
+              className="size-12 -translate-y-2.5 rounded-full shadow-[0_4px_14px_-2px_rgba(70,60,140,0.45)] transition-all duration-200 active:scale-90"
+              aria-label="Añadir tarea"
+              data-tour="add-task-fab"
+            >
+              <PlusIcon className="size-5" />
+            </Button>
+          ) : floating ? (
             <Button
               size="icon-lg"
               className="size-14 rounded-full shadow-[0_6px_20px_-2px_rgba(70,60,140,0.4)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_10px_26px_-2px_rgba(70,60,140,0.5)] active:translate-y-0"

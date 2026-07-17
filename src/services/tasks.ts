@@ -19,6 +19,7 @@ export type CreateTaskInput = {
   childId?: string | null
   relatedMemberId?: string | null
   assignedToMemberId?: string | null
+  createdByMemberId?: string | null
   recurrenceType?: RecurrenceType
   recurrenceIntervalDays?: number | null
 }
@@ -36,9 +37,36 @@ export async function createTask(input: CreateTaskInput) {
       childId: input.childId ?? null,
       relatedMemberId: input.relatedMemberId ?? null,
       assignedToMemberId: input.assignedToMemberId ?? null,
+      createdByMemberId: input.createdByMemberId ?? null,
       recurrenceType: input.recurrenceType ?? "NONE",
       recurrenceIntervalDays: input.recurrenceIntervalDays ?? null,
       source: "MANUAL",
+    },
+  })
+}
+
+export type UpdateTaskInput = {
+  title?: string
+  dueDate?: Date | null
+  assignedToMemberId?: string | null
+}
+
+export async function updateTask(taskId: string, input: UpdateTaskInput) {
+  return db.task.update({
+    where: { id: taskId },
+    data: input,
+  })
+}
+
+export async function getTask(taskId: string) {
+  return db.task.findUnique({
+    where: { id: taskId },
+    include: {
+      assignedTo: { include: { user: true } },
+      createdBy: { include: { user: true } },
+      pet: true,
+      vehicle: true,
+      child: true,
     },
   })
 }
@@ -59,7 +87,8 @@ export async function getTasksForEntity(
     include: {
       child: true,
       relatedMember: { include: { user: true } },
-      assignedTo: true,
+      assignedTo: { include: { user: true } },
+      createdBy: { include: { user: true } },
     },
     orderBy: [{ dueDate: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
   })
@@ -151,7 +180,13 @@ export async function getDashboardTasks(
         : {}),
       ...visibleTaskWhere(member),
     },
-    include: { pet: true, vehicle: true, child: true, assignedTo: true },
+    include: {
+      pet: true,
+      vehicle: true,
+      child: true,
+      assignedTo: { include: { user: true } },
+      createdBy: { include: { user: true } },
+    },
     orderBy: [{ dueDate: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
   })
 
@@ -203,6 +238,7 @@ export async function applyTaskPlan(
           childId: draft.childId,
           relatedMemberId: draft.relatedMemberId,
           assignedToMemberId: draft.assignedToMemberId ?? options?.createdByMemberId ?? null,
+          createdByMemberId: options?.createdByMemberId ?? null,
         },
       })
     )

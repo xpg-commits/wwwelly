@@ -117,6 +117,7 @@ model HouseholdMember {
 
   assignedTasks        Task[]         @relation("TaskAssignee")
   relatedHealthTasks   Task[]         @relation("TaskRelatedMember")
+  createdTasks         Task[]         @relation("TaskCreatedBy")
   shoppingItemsAdded   ShoppingItem[] @relation("ShoppingItemAddedBy")
   shoppingItemsChecked ShoppingItem[] @relation("ShoppingItemCheckedBy")
 
@@ -294,6 +295,7 @@ model Task {
   childId            String?
   relatedMemberId    String?
   assignedToMemberId String?
+  createdByMemberId  String?
 
   metadata Json?
 
@@ -311,6 +313,7 @@ model Task {
   child              Child?               @relation(fields: [childId], references: [id], onDelete: SetNull)
   relatedMember      HouseholdMember?     @relation("TaskRelatedMember", fields: [relatedMemberId], references: [id], onDelete: SetNull)
   assignedTo         HouseholdMember?     @relation("TaskAssignee", fields: [assignedToMemberId], references: [id], onDelete: SetNull)
+  createdBy          HouseholdMember?     @relation("TaskCreatedBy", fields: [createdByMemberId], references: [id], onDelete: SetNull)
   sourceTemplateTask RoutineTemplateTask? @relation(fields: [sourceTemplateTaskId], references: [id], onDelete: SetNull)
   aiGeneration       AiGeneration?        @relation(fields: [aiGenerationId], references: [id], onDelete: SetNull)
 

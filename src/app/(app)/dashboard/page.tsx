@@ -5,7 +5,7 @@ import { requireActiveMember } from "@/lib/session"
 import { getDashboardTasks, countCompletedThisWeek } from "@/services/tasks"
 import { TaskSection } from "@/components/tasks/task-section"
 import { ModuleFilterBar } from "@/components/dashboard/module-filter-bar"
-import { FloatingControls } from "@/components/dashboard/floating-controls"
+import { ViewToggle } from "@/components/dashboard/view-toggle"
 import { DEFAULT_MODULE_ORDER, isFilterKey, isHouseholdModuleKey, type FilterKey } from "@/lib/modules"
 import { TaskModule } from "@/generated/prisma/enums"
 import { GuidedTour } from "@/components/onboarding/guided-tour"
@@ -33,10 +33,6 @@ export default async function DashboardPage({
     : DEFAULT_MODULE_ORDER
   const primaryModuleKey =
     (household as { primaryModuleKey?: string | null })?.primaryModuleKey ?? null
-  const memberOptions = (household?.members ?? []).map((m) => ({
-    id: m.id,
-    name: (m as { displayName?: string | null }).displayName ?? m.user.name,
-  }))
 
   const [{ today, thisWeek, later }, completedThisWeek] = await Promise.all([
     getDashboardTasks(householdId, member, {
@@ -49,7 +45,7 @@ export default async function DashboardPage({
   const firstName = session.user.name?.split(" ")[0] ?? ""
 
   return (
-    <div className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-6 pt-12 pb-32">
+    <div className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-6 py-12">
       <div>
         <h1 className="font-heading text-3xl font-semibold tracking-tight">
           Buenos días, {firstName} 👋
@@ -62,13 +58,18 @@ export default async function DashboardPage({
         )}
       </div>
 
-      <ModuleFilterBar
-        order={moduleOrder}
-        enabled={enabledModules}
-        primaryModuleKey={primaryModuleKey}
-        activeModule={activeModule}
-        ver={ver}
-      />
+      <div className="space-y-3">
+        <ModuleFilterBar
+          order={moduleOrder}
+          enabled={enabledModules}
+          primaryModuleKey={primaryModuleKey}
+          activeModule={activeModule}
+          ver={ver}
+        />
+        <div className="flex justify-end">
+          <ViewToggle ver={ver} modulo={activeModule} />
+        </div>
+      </div>
 
       <div data-tour="task-list" className="space-y-8">
         <TaskSection
@@ -92,12 +93,6 @@ export default async function DashboardPage({
         />
       </div>
 
-      <FloatingControls
-        ver={ver}
-        modulo={activeModule}
-        members={memberOptions}
-        currentMemberId={member.id}
-      />
       <GuidedTour memberId={member.id} />
     </div>
   )

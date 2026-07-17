@@ -1,11 +1,15 @@
 "use server"
 
+import { headers } from "next/headers"
+
 import { requireActiveMember } from "@/lib/session"
+import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import * as taskService from "@/services/tasks"
 import { TaskModule, RecurrenceType } from "@/generated/prisma/enums"
 
 type ActionResult = { success: true } | { success: false; error: string }
+type DataActionResult<T> = { success: true; data: T } | { success: false; error: string }
 
 const VALID_MODULES = new Set<string>(Object.values(TaskModule))
 const RECURRING_TYPES = new Set<string>([
@@ -115,10 +119,49 @@ export async function createTaskAction(formData: FormData): Promise<ActionResult
     childId,
     relatedMemberId,
     assignedToMemberId,
+    createdByMemberId: member.id,
     recurrenceType,
     recurrenceIntervalDays,
   })
 
+  return { success: true }
+}
+
+export async function updateTaskAction(
+  taskId: string,
+  formData: FormData
+): Promise<ActionResult> {
+  const { householdId } = await requireActiveMember()
+
+  const task = await db.task.findUnique({
+    where: { id: taskId },
+    select: { householdId: true },
+  })
+  if (!task || task.householdId !== householdId) {
+    return { success: false, error: "Tarea no encontrada." }
+  }
+
+  const title = String(formData.get("title") ?? "").trim()
+  if (!title) {
+    return { success: false, error: "Ponle un título a la tarea." }
+  }
+
+  const dueDateRaw = String(formData.get("dueDate") ?? "").trim()
+  const dueDate = dueDateRaw ? new Date(`${dueDateRaw}T00:00:00`) : null
+
+  const assignedToMemberIdRaw = String(formData.get("assignedToMemberId") ?? "").trim()
+  let assignedToMemberId: string | null = assignedToMemberIdRaw || null
+  if (assignedToMemberId) {
+    const assignedMember = await db.householdMember.findUnique({
+      where: { id: assignedToMemberId },
+      select: { organizationId: true },
+    })
+    if (!assignedMember || assignedMember.organizationId !== householdId) {
+      return { success: false, error: "No se encontró ese miembro." }
+    }
+  }
+
+  await taskService.updateTask(taskId, { title, dueDate, assignedToMemberId })
   return { success: true }
 }
 
@@ -138,4 +181,26 @@ export async function setTaskStatusAction(
 
   await taskService.setTaskStatus(taskId, done)
   return { success: true }
+}
+
+export type TaskDetail = NonNullable<Awaited<ReturnType<typeof taskService.getTask>>>
+export type TaskDetailMember = { id: string; name: string }
+
+export async function getTaskDetailAction(
+  taskId: string
+): Promise<DataActionResult<{ task: TaskDetail; members: TaskDetailMember[] }>> {
+  const { householdId } = await requireActiveMember()
+
+  const task = await taskService.getTask(taskId)
+  if (!task || task.householdId !== householdId) {
+    return { success: false, error: "Tarea no encontrada." }
+  }
+
+  const household = await auth.api.getFullOrganization({ headers: await headers() })
+  const members = (household?.members ?? []).map((m) => ({
+    id: m.id,
+    name: (m as { displayName?: string | null }).displayName ?? m.user.name,
+  }))
+
+  return { success: true, data: { task, members } }
 }

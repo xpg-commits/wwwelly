@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { setTaskStatusAction } from "@/actions/tasks"
 import { memberColorVar } from "@/lib/memberColors"
+import { TaskDetailDialog } from "@/components/tasks/task-detail-dialog"
 
 type TaskItemProps = {
   id: string
@@ -40,6 +41,7 @@ export function TaskItem({
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [pulseKey, setPulseKey] = useState(0)
+  const [detailOpen, setDetailOpen] = useState(false)
 
   const dateLabel = completedAt
     ? `Hecha el ${format(completedAt, "d MMM", { locale: es })}`
@@ -48,7 +50,7 @@ export function TaskItem({
       : null
 
   return (
-    <label
+    <div
       className="list-row stagger-in has-[[data-disabled]]:opacity-60"
       style={{ "--stagger": index } as React.CSSProperties}
     >
@@ -75,7 +77,11 @@ export function TaskItem({
           }}
         />
       </motion.span>
-      <span className="flex flex-1 items-center gap-2 text-sm">
+      <button
+        type="button"
+        className="flex flex-1 items-center gap-2 text-left text-sm"
+        onClick={() => setDetailOpen(true)}
+      >
         {assignedToColor && (
           <span
             className="size-2 shrink-0 rounded-full"
@@ -86,7 +92,7 @@ export function TaskItem({
         {title}
         {recurring && <span title="Se repite">🔁</span>}
         {subtitle && <Badge variant="secondary">{subtitle}</Badge>}
-      </span>
+      </button>
       {dateLabel && (
         <span
           className={
@@ -98,6 +104,7 @@ export function TaskItem({
           {dateLabel}
         </span>
       )}
-    </label>
+      <TaskDetailDialog taskId={id} open={detailOpen} onOpenChange={setDetailOpen} />
+    </div>
   )
 }
