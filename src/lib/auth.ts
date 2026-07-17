@@ -10,9 +10,20 @@ const googleConfigured = Boolean(
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
 )
 
+// baseURL is trusted automatically, but Vercel also serves the app from its
+// own assigned domain (and a fresh one per preview deploy) — trust those too
+// so login doesn't 500 with "invalid origin" before a custom domain is wired
+// up, or on any preview deployment.
+const trustedOrigins = [
+  process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`,
+  process.env.VERCEL_PROJECT_PRODUCTION_URL &&
+    `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`,
+].filter((origin): origin is string => Boolean(origin))
+
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   secret: process.env.BETTER_AUTH_SECRET,
+  trustedOrigins,
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
