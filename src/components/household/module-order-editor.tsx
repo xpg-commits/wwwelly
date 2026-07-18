@@ -3,37 +3,26 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { ChevronUpIcon, ChevronDownIcon, StarIcon } from "lucide-react"
+import { ChevronUpIcon, ChevronDownIcon } from "lucide-react"
 
 import { Switch } from "@/components/ui/switch"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import {
-  filterIcon,
-  filterLabel,
-  isHouseholdModuleKey,
-  type FilterKey,
-} from "@/lib/modules"
+import { filterLabel, type FilterKey } from "@/lib/modules"
 import {
   updateEnabledModulesAction,
   updateModuleOrderAction,
-  updatePrimaryModuleAction,
 } from "@/actions/household-settings"
 
 export function ModuleOrderEditor({
   order,
   enabled,
-  primaryModuleKey,
 }: {
   order: FilterKey[]
   enabled: FilterKey[]
-  primaryModuleKey: string | null
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [items, setItems] = useState(order)
   const [enabledSet, setEnabledSet] = useState(new Set(enabled))
-  const [primary, setPrimary] = useState(primaryModuleKey)
 
   function move(index: number, direction: -1 | 1) {
     const next = [...items]
@@ -68,21 +57,6 @@ export function ModuleOrderEditor({
     })
   }
 
-  function setAsPrimary(key: string) {
-    const previous = primary
-    const next = primary === key ? null : key
-    setPrimary(next)
-    startTransition(async () => {
-      const result = await updatePrimaryModuleAction(next)
-      if (!result.success) {
-        toast.error(result.error)
-        setPrimary(previous)
-        return
-      }
-      router.refresh()
-    })
-  }
-
   return (
     <div className="space-y-1">
       {items.map((key, index) => (
@@ -108,24 +82,9 @@ export function ModuleOrderEditor({
                 <ChevronDownIcon className="size-3.5" />
               </button>
             </div>
-            <span>{filterIcon(key)}</span>
             <span className="text-sm">{filterLabel(key)}</span>
           </div>
           <div className="flex items-center gap-3">
-            {isHouseholdModuleKey(key) && (
-              <button
-                type="button"
-                disabled={pending}
-                onClick={() => setAsPrimary(key)}
-                title="Marcar como principal"
-                className={cn(
-                  "text-muted-foreground hover:text-foreground",
-                  primary === key && "text-primary"
-                )}
-              >
-                <StarIcon className={cn("size-4", primary === key && "fill-current")} />
-              </button>
-            )}
             <Switch
               checked={enabledSet.has(key)}
               disabled={pending}

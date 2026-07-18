@@ -1,5 +1,5 @@
 {
-  "name": "narela",
+  "name": "wwwelly",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -27,7 +27,6 @@
     "lucide-react": "^1.24.0",
     "motion": "^12.42.2",
     "next": "16.2.10",
-    "next-themes": "^0.4.6",
     "pg": "^8.22.0",
     "prisma": "^7.8.0",
     "react": "19.2.4",

@@ -19,7 +19,7 @@ export async function sendSupportMessageAction(formData: FormData): Promise<Acti
   try {
     await sendEmail({
       to: SUPPORT_EMAIL,
-      subject: `[Soporte Narela] ${subject}`,
+      subject: `[Soporte wwwelly] ${subject}`,
       html: `
         <p><strong>De:</strong> ${session.user.name} (${session.user.email})</p>
         <p><strong>Asunto:</strong> ${subject}</p>

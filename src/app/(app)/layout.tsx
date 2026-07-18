@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ChevronDownIcon } from "lucide-react"
 
 import { auth } from "@/lib/auth"
+import { listChildren } from "@/services/children"
 import { CreateHouseholdForm } from "@/components/household/create-household-form"
 import { AutoActivateHousehold } from "@/components/household/auto-activate-household"
 import { UserMenu } from "@/components/household/user-menu"
@@ -27,7 +28,6 @@ import {
   ALL_FILTER_KEY,
   DEFAULT_MODULE_ORDER,
   filterHref,
-  filterIcon,
   filterLabel,
   isFilterKey,
   type FilterKey,
@@ -74,7 +74,12 @@ export default async function AppLayout({
     )
   }
 
-  const household = await auth.api.getFullOrganization({ headers: reqHeaders })
+  const householdId = session.session.activeOrganizationId
+  const [household, childRows] = await Promise.all([
+    auth.api.getFullOrganization({ headers: reqHeaders }),
+    listChildren(householdId),
+  ])
+  const childOptions = childRows.map((c) => ({ id: c.id, name: c.name }))
 
   const rawEnabled = (household as { enabledModules?: unknown })?.enabledModules
   const enabledSet = new Set<FilterKey>(
@@ -92,9 +97,8 @@ export default async function AppLayout({
         key,
         href: key === ALL_FILTER_KEY ? "/dashboard" : (filterHref(key) ?? "/dashboard"),
         label: filterLabel(key),
-        icon: filterIcon(key),
       })),
-    { key: "TEMPLATES", href: "/plantillas", label: "Plantillas de rutinas", icon: "📋" },
+    { key: "TEMPLATES", href: "/plantillas", label: "Plantillas de rutinas" },
   ]
 
   const myMember = household?.members.find((m) => m.userId === session.user.id)
@@ -108,37 +112,43 @@ export default async function AppLayout({
     <div className="flex min-h-full flex-1 flex-col">
       <header className="flex items-center justify-between bg-card/80 px-6 py-3 shadow-[0_1px_0_rgba(80,50,20,0.05)] backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          <UserMenu name={session.user.name} color={myColor} image={session.user.image} />
           <Link
             href="/dashboard"
             className="flex items-center gap-1.5 font-heading font-semibold tracking-tight"
           >
             <Logo size={22} />
-            Narela
+            wwwelly
           </Link>
           <span className="hidden text-sm text-muted-foreground sm:inline">
             {household?.name}
           </span>
         </div>
-        {/* Desktop only — mobile gets the bottom nav instead of a menu. */}
-        <nav className="hidden items-center gap-2 text-sm text-muted-foreground md:flex">
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-1")}
-            >
-              Módulos
-              <ChevronDownIcon className="size-3.5" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {moduleLinks.map((item) => (
-                <DropdownMenuItem key={item.key} render={<Link href={item.href} />}>
-                  {item.key === ALL_FILTER_KEY ? <Logo size={14} /> : item.icon} {item.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <AddTaskDialog members={memberOptions} currentMemberId={myMember?.id ?? ""} />
-        </nav>
+        <div className="flex items-center gap-2">
+          {/* Desktop only — mobile gets the bottom nav instead of a menu. */}
+          <nav className="hidden items-center gap-2 text-sm text-muted-foreground md:flex">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-1")}
+              >
+                Módulos
+                <ChevronDownIcon className="size-3.5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {moduleLinks.map((item) => (
+                  <DropdownMenuItem key={item.key} render={<Link href={item.href} />}>
+                    {item.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AddTaskDialog
+              members={memberOptions}
+              currentMemberId={myMember?.id ?? ""}
+              childOptions={childOptions}
+            />
+          </nav>
+          <UserMenu name={session.user.name} color={myColor} image={session.user.image} />
+        </div>
       </header>
       <main className="flex flex-1 flex-col pb-24 md:pb-0">
         <PageTransition>{children}</PageTransition>
@@ -148,6 +158,7 @@ export default async function AppLayout({
         moduleOrder={order}
         members={memberOptions}
         currentMemberId={myMember?.id ?? ""}
+        childOptions={childOptions}
       />
     </div>
   )

@@ -1,4 +1,5 @@
 import { headers } from "next/headers"
+import Link from "next/link"
 
 import { auth } from "@/lib/auth"
 import { requireActiveMember } from "@/lib/session"
@@ -12,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { buttonVariants } from "@/components/ui/button"
 import { Accordion } from "@/components/ui/accordion"
 import { ModuleOrderEditor } from "@/components/household/module-order-editor"
 import {
@@ -47,9 +49,6 @@ export default async function ConfiguracionHogarPage() {
     if (!moduleOrder.includes(key)) moduleOrder.push(key)
   }
 
-  const primaryModuleKey = (household as { primaryModuleKey?: string | null })
-    ?.primaryModuleKey ?? null
-
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-6 py-10">
       <div>
@@ -57,7 +56,7 @@ export default async function ConfiguracionHogarPage() {
           Configuración del hogar
         </h1>
         <p className="text-muted-foreground">
-          Activa, ordena y elige el módulo principal de {household?.name}.
+          Activa y ordena los módulos de {household?.name}.
         </p>
       </div>
 
@@ -65,16 +64,27 @@ export default async function ConfiguracionHogarPage() {
         <CardHeader>
           <CardTitle>Módulos</CardTitle>
           <CardDescription>
-            Flechas para ordenar, la estrella marca el principal, el interruptor
-            activa o desactiva — nada se borra al desactivar.
+            Flechas para ordenar, el interruptor activa o desactiva — nada se
+            borra al desactivar.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ModuleOrderEditor
-            order={moduleOrder}
-            enabled={enabledModules}
-            primaryModuleKey={primaryModuleKey}
-          />
+          <ModuleOrderEditor order={moduleOrder} enabled={enabledModules} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Reparto de tareas</CardTitle>
+          <CardDescription>
+            Un asistente que pregunta cómo es vuestra casa y propone un reparto
+            equitativo de las tareas domésticas entre los adultos del hogar.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link href="/ajustes/hogar/reparto" className={buttonVariants({ size: "sm" })}>
+            Configurar reparto
+          </Link>
         </CardContent>
       </Card>
 

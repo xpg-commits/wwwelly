@@ -12,7 +12,7 @@ export default async function NinosPage() {
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-6 py-10">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">👶 Niños</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Niños</h1>
         <p className="text-muted-foreground">
           Colegio, actividades, excursiones, cumpleaños y ropa.
         </p>

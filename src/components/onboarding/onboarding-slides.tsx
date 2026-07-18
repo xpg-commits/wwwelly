@@ -12,7 +12,7 @@ const SLIDES = [
   {
     icon: BrainIcon,
     title: "Todo lo que llevas en la cabeza",
-    body: "Citas, revisiones, la ITV, cuándo tocaba la vacuna del perro… Narela lo recuerda por ti, para que tú no tengas que hacerlo.",
+    body: "Citas, revisiones, la ITV, cuándo tocaba la vacuna del perro… wwwelly lo recuerda por ti, para que tú no tengas que hacerlo.",
   },
   {
     icon: LayoutGridIcon,
@@ -22,7 +22,7 @@ const SLIDES = [
   {
     icon: SparklesIcon,
     title: "Cuéntaselo, y ella se encarga",
-    body: "Escribe una frase o una receta y Narela te propone el plan de tareas. Tú solo confirmas.",
+    body: "Escribe una frase o una receta y wwwelly te propone el plan de tareas. Tú solo confirmas.",
   },
   {
     icon: UsersIcon,
@@ -39,7 +39,10 @@ export function OnboardingSlides() {
 
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-8 text-center">
-      <Logo size={40} />
+      <div className="flex items-center gap-2 font-heading text-xl font-semibold tracking-tight">
+        <Logo size={32} />
+        wwwelly
+      </div>
 
       <div key={index} className="stagger-in flex flex-col items-center gap-4">
         <div className="flex size-20 items-center justify-center rounded-3xl bg-accent">

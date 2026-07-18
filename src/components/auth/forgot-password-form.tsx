@@ -15,7 +15,7 @@ export function ForgotPasswordForm() {
   if (sent) {
     return (
       <p className="text-sm text-muted-foreground">
-        Si esa dirección tiene una cuenta en Narela, te hemos mandado un enlace para
+        Si esa dirección tiene una cuenta en wwwelly, te hemos mandado un enlace para
         elegir una contraseña nueva. Revisa tu bandeja de entrada.
       </p>
     )

@@ -32,6 +32,7 @@ import {
   setTaskStatusAction,
   type TaskDetail,
   type TaskDetailMember,
+  type TaskDetailChild,
 } from "@/actions/tasks"
 
 const UNASSIGNED = "__unassigned__"
@@ -50,10 +51,12 @@ export function TaskDetailDialog({
   const [loading, setLoading] = useState(true)
   const [task, setTask] = useState<TaskDetail | null>(null)
   const [members, setMembers] = useState<TaskDetailMember[]>([])
+  const [childOptions, setChildOptions] = useState<TaskDetailChild[]>([])
 
   const [title, setTitle] = useState("")
   const [dueDate, setDueDate] = useState("")
   const [assignee, setAssignee] = useState(UNASSIGNED)
+  const [involvedChildIds, setInvolvedChildIds] = useState<string[]>([])
   const [done, setDone] = useState(false)
 
   useEffect(() => {
@@ -65,12 +68,14 @@ export function TaskDetailDialog({
         onOpenChange(false)
         return
       }
-      const { task: t, members: m } = result.data
+      const { task: t, members: m, children: c } = result.data
       setTask(t)
       setMembers(m)
+      setChildOptions(c)
       setTitle(t.title)
       setDueDate(t.dueDate ? format(t.dueDate, "yyyy-MM-dd") : "")
       setAssignee(t.assignedToMemberId ?? UNASSIGNED)
+      setInvolvedChildIds(t.involvedChildIds)
       setDone(t.status === "DONE")
       setLoading(false)
     })
@@ -83,6 +88,7 @@ export function TaskDetailDialog({
     formData.set("title", title)
     formData.set("dueDate", dueDate)
     if (assignee !== UNASSIGNED) formData.set("assignedToMemberId", assignee)
+    for (const id of involvedChildIds) formData.append("involvedChildIds", id)
 
     startTransition(async () => {
       const result = await updateTaskAction(task.id, formData)
@@ -159,6 +165,36 @@ export function TaskDetailDialog({
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            )}
+
+            {childOptions.length > 0 && (
+              <div className="space-y-2">
+                <Label>
+                  {childOptions.length > 1
+                    ? "Implicar a los niños"
+                    : `Implicar a ${childOptions[0].name}`}
+                </Label>
+                <div className="flex flex-wrap gap-3">
+                  {childOptions.map((c) => {
+                    const checked = involvedChildIds.includes(c.id)
+                    return (
+                      <label key={c.id} className="flex items-center gap-1.5 text-sm">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(v) =>
+                            setInvolvedChildIds((prev) =>
+                              v === true
+                                ? [...prev, c.id]
+                                : prev.filter((id) => id !== c.id)
+                            )
+                          }
+                        />
+                        {c.name}
+                      </label>
+                    )
+                  })}
+                </div>
               </div>
             )}
 

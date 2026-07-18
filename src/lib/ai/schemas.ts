@@ -33,6 +33,16 @@ export const TaskDraftSchema = z.object({
   // set when the text names a specific person to do it; left null to fall
   // back to whoever confirms the plan.
   assignedToMemberId: z.string().nullable(),
+  // Ordered list of member ids taking turns on this task. Null/empty = fixed
+  // (assignedToMemberId never changes across recurrences); 2+ ids = the
+  // turn rotates to the next id in this list each time the task recurs,
+  // wrapping back to the start. When set, assignedToMemberId should be the
+  // first id in this list (whoever starts).
+  rotationMemberIds: z.array(z.string()).nullable(),
+  // Children (from the Niños module, no login of their own) involved or
+  // helping with this task — separate from childId above, which is who the
+  // task is *about* (e.g. a pediatric checkup's subject).
+  involvedChildIds: z.array(z.string()).nullable(),
 })
 
 export const TaskPlanSchema = z.object({

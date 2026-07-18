@@ -2,14 +2,14 @@ import type { MetadataRoute } from "next"
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Narela — La memoria de tu hogar",
-    short_name: "Narela",
+    name: "wwwelly — La memoria de tu hogar",
+    short_name: "wwwelly",
     description:
       "La app que recuerda por ti todo lo que normalmente llevas en la cabeza.",
     start_url: "/dashboard",
     display: "standalone",
-    background_color: "#FFF7EE",
-    theme_color: "#C2703D",
+    background_color: "#FBF7F3",
+    theme_color: "#1F2430",
     icons: [
       {
         src: "/icon-192x192.png",

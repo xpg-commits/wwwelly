@@ -2,10 +2,12 @@ import { headers } from "next/headers"
 
 import { auth } from "@/lib/auth"
 import { requireActiveMember } from "@/lib/session"
+import { db } from "@/lib/db"
 import { getDashboardTasks, countCompletedThisWeek } from "@/services/tasks"
 import { TaskSection } from "@/components/tasks/task-section"
 import { ModuleFilterBar } from "@/components/dashboard/module-filter-bar"
 import { ViewToggle } from "@/components/dashboard/view-toggle"
+import { GettingStartedBanner } from "@/components/dashboard/getting-started-banner"
 import { DEFAULT_MODULE_ORDER, isFilterKey, isHouseholdModuleKey, type FilterKey } from "@/lib/modules"
 import { TaskModule } from "@/generated/prisma/enums"
 import { GuidedTour } from "@/components/onboarding/guided-tour"
@@ -31,16 +33,20 @@ export default async function DashboardPage({
   const moduleOrder: FilterKey[] = Array.isArray(rawOrder)
     ? rawOrder.filter(isFilterKey)
     : DEFAULT_MODULE_ORDER
-  const primaryModuleKey =
-    (household as { primaryModuleKey?: string | null })?.primaryModuleKey ?? null
+  const [{ today, thisWeek, later }, completedThisWeek, homeTaskCount, childCount] =
+    await Promise.all([
+      getDashboardTasks(householdId, member, {
+        module: activeModule as TaskModule | undefined,
+        onlyAssignedToMemberId: onlyMine ? member.id : undefined,
+      }),
+      countCompletedThisWeek(householdId, member),
+      db.task.count({ where: { householdId, module: "HOME" } }),
+      db.child.count({ where: { householdId } }),
+    ])
 
-  const [{ today, thisWeek, later }, completedThisWeek] = await Promise.all([
-    getDashboardTasks(householdId, member, {
-      module: activeModule as TaskModule | undefined,
-      onlyAssignedToMemberId: onlyMine ? member.id : undefined,
-    }),
-    countCompletedThisWeek(householdId, member),
-  ])
+  const adultCount = (household?.members ?? []).filter(
+    (m) => (m as { visibilityRole?: string }).visibilityRole === "ADULT"
+  ).length
 
   const firstName = session.user.name?.split(" ")[0] ?? ""
 
@@ -48,7 +54,7 @@ export default async function DashboardPage({
     <div className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-6 py-12">
       <div>
         <h1 className="font-heading text-3xl font-semibold tracking-tight">
-          Buenos días, {firstName} 👋
+          Buenos días, {firstName}
         </h1>
         {completedThisWeek > 0 && (
           <p className="mt-1.5 text-sm text-muted-foreground">
@@ -58,11 +64,14 @@ export default async function DashboardPage({
         )}
       </div>
 
+      {homeTaskCount === 0 && (
+        <GettingStartedBanner adultCount={adultCount} childCount={childCount} />
+      )}
+
       <div className="space-y-3">
         <ModuleFilterBar
           order={moduleOrder}
           enabled={enabledModules}
-          primaryModuleKey={primaryModuleKey}
           activeModule={activeModule}
           ver={ver}
         />
@@ -73,20 +82,17 @@ export default async function DashboardPage({
 
       <div data-tour="task-list" className="space-y-8">
         <TaskSection
-          icon="☑"
           title="Hoy"
           tasks={today}
           emptyLabel="Nada urgente para hoy."
           markOverdue
         />
         <TaskSection
-          icon="📅"
           title="Esta semana"
           tasks={thisWeek}
           emptyLabel="Nada más esta semana."
         />
         <TaskSection
-          icon="🌿"
           title="Más adelante"
           tasks={later}
           emptyLabel="Nada pendiente sin fecha próxima."

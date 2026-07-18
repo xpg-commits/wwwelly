@@ -5,7 +5,7 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 // From address needs a domain verified in Resend to work in production —
 // until then Resend only delivers to the account owner's own inbox, which is
 // fine for getting this wired up before a custom domain is verified there.
-const FROM = process.env.RESEND_FROM_EMAIL ?? "Narela <onboarding@resend.dev>"
+const FROM = process.env.RESEND_FROM_EMAIL ?? "wwwelly <onboarding@resend.dev>"
 
 export async function sendEmail({
   to,

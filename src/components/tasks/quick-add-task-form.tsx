@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import { DatePickerField } from "@/components/ui/date-picker-field"
 import {
   Select,
@@ -21,16 +22,21 @@ export function QuickAddTaskForm({
   hiddenFields,
   members,
   currentMemberId,
+  childOptions,
   onSuccess,
 }: {
   hiddenFields?: Record<string, string>
   members?: { id: string; name: string }[]
   currentMemberId?: string
+  // Kids (Niños module profiles) that can be marked as helping/participating
+  // in this task — omitted entirely when the household has none registered.
+  childOptions?: { id: string; name: string }[]
   onSuccess?: () => void
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [dueDate, setDueDate] = useState("")
+  const [involvedChildIds, setInvolvedChildIds] = useState<string[]>([])
   const formRef = useRef<HTMLFormElement>(null)
 
   return (
@@ -46,6 +52,7 @@ export function QuickAddTaskForm({
           }
           formRef.current?.reset()
           setDueDate("")
+          setInvolvedChildIds([])
           router.refresh()
           onSuccess?.()
         })
@@ -92,6 +99,32 @@ export function QuickAddTaskForm({
             ))}
           </SelectContent>
         </Select>
+      )}
+      {childOptions && childOptions.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          {childOptions.length > 1 && (
+            <span className="text-muted-foreground">Implicar a los niños:</span>
+          )}
+          {childOptions.map((c) => {
+            const checked = involvedChildIds.includes(c.id)
+            return (
+              <label key={c.id} className="flex items-center gap-1.5">
+                <Checkbox
+                  checked={checked}
+                  onCheckedChange={(v) =>
+                    setInvolvedChildIds((prev) =>
+                      v === true ? [...prev, c.id] : prev.filter((id) => id !== c.id)
+                    )
+                  }
+                />
+                {childOptions.length === 1 ? `Implicar a ${c.name} en esta tarea` : c.name}
+              </label>
+            )
+          })}
+          {involvedChildIds.map((id) => (
+            <input key={id} type="hidden" name="involvedChildIds" value={id} />
+          ))}
+        </div>
       )}
       <RecurrenceFields />
     </form>

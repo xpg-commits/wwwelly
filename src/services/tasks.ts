@@ -22,6 +22,7 @@ export type CreateTaskInput = {
   createdByMemberId?: string | null
   recurrenceType?: RecurrenceType
   recurrenceIntervalDays?: number | null
+  involvedChildIds?: string[] | null
 }
 
 export async function createTask(input: CreateTaskInput) {
@@ -40,6 +41,7 @@ export async function createTask(input: CreateTaskInput) {
       createdByMemberId: input.createdByMemberId ?? null,
       recurrenceType: input.recurrenceType ?? "NONE",
       recurrenceIntervalDays: input.recurrenceIntervalDays ?? null,
+      involvedChildIds: input.involvedChildIds ?? [],
       source: "MANUAL",
     },
   })
@@ -49,6 +51,7 @@ export type UpdateTaskInput = {
   title?: string
   dueDate?: Date | null
   assignedToMemberId?: string | null
+  involvedChildIds?: string[]
 }
 
 export async function updateTask(taskId: string, input: UpdateTaskInput) {
@@ -131,6 +134,16 @@ export async function setTaskStatus(taskId: string, done: boolean) {
     })
 
     if (nextDueDate) {
+      // Rotativo (2+ ids): the turn advances to whoever comes after the
+      // current assignee in the roster, wrapping back to the start (and
+      // restarting at index 0 if the current assignee somehow isn't in the
+      // list). Fijo (0-1 ids): unchanged, same assignee every time.
+      const rotation = task.rotationMemberIds
+      const nextAssignedToMemberId =
+        rotation.length > 1
+          ? rotation[(rotation.indexOf(task.assignedToMemberId ?? "") + 1) % rotation.length]
+          : task.assignedToMemberId
+
       await tx.task.create({
         data: {
           householdId: task.householdId,
@@ -142,7 +155,9 @@ export async function setTaskStatus(taskId: string, done: boolean) {
           vehicleId: task.vehicleId,
           childId: task.childId,
           relatedMemberId: task.relatedMemberId,
-          assignedToMemberId: task.assignedToMemberId,
+          assignedToMemberId: nextAssignedToMemberId,
+          rotationMemberIds: task.rotationMemberIds,
+          involvedChildIds: task.involvedChildIds,
           recurrenceType: task.recurrenceType,
           recurrenceIntervalDays: task.recurrenceIntervalDays,
           previousTaskId: task.id,
@@ -221,8 +236,9 @@ export async function applyTaskPlan(
   if (drafts.length === 0) return []
 
   return db.$transaction(
-    drafts.map((draft) =>
-      db.task.create({
+    drafts.map((draft) => {
+      const rotationMemberIds = draft.rotationMemberIds ?? []
+      return db.task.create({
         data: {
           householdId,
           title: draft.title,
@@ -237,11 +253,14 @@ export async function applyTaskPlan(
           vehicleId: draft.vehicleId,
           childId: draft.childId,
           relatedMemberId: draft.relatedMemberId,
-          assignedToMemberId: draft.assignedToMemberId ?? options?.createdByMemberId ?? null,
+          assignedToMemberId:
+            draft.assignedToMemberId ?? rotationMemberIds[0] ?? options?.createdByMemberId ?? null,
+          rotationMemberIds,
+          involvedChildIds: draft.involvedChildIds ?? [],
           createdByMemberId: options?.createdByMemberId ?? null,
         },
       })
-    )
+    })
   )
 }
 

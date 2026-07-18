@@ -12,7 +12,7 @@ export default async function VehiculosPage() {
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-6 py-10">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">🚗 Vehículos</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Vehículos</h1>
         <p className="text-muted-foreground">
           ITV, seguro, neumáticos y revisiones, todo automático.
         </p>

@@ -101,7 +101,7 @@ export function PetsManagerSection({
 }) {
   return (
     <AccordionItem value="pets">
-      <AccordionTrigger>🐶 Mascotas ({pets.length})</AccordionTrigger>
+      <AccordionTrigger>Mascotas ({pets.length})</AccordionTrigger>
       <AccordionContent className="space-y-2">
         {pets.map((pet) => (
           <EntityRow
@@ -141,7 +141,7 @@ export function VehiclesManagerSection({
 }) {
   return (
     <AccordionItem value="vehicles">
-      <AccordionTrigger>🚗 Vehículos ({vehicles.length})</AccordionTrigger>
+      <AccordionTrigger>Vehículos ({vehicles.length})</AccordionTrigger>
       <AccordionContent className="space-y-2">
         {vehicles.map((vehicle) => (
           <EntityRow
@@ -174,7 +174,7 @@ export function ChildrenManagerSection({
 }) {
   return (
     <AccordionItem value="children">
-      <AccordionTrigger>👶 Niños ({children.length})</AccordionTrigger>
+      <AccordionTrigger>Niños ({children.length})</AccordionTrigger>
       <AccordionContent className="space-y-2">
         {children.map((child) => (
           <EntityRow

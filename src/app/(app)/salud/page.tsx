@@ -35,7 +35,7 @@ export default async function SaludPage() {
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-6 py-10">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">💊 Salud</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Salud</h1>
         <p className="text-muted-foreground">
           Citas, analíticas y revisiones de toda la familia.
         </p>
@@ -45,14 +45,12 @@ export default async function SaludPage() {
 
       <div className="space-y-6">
         <TaskSection
-          icon="☑"
           title="Pendiente"
           tasks={withSubtitle(pending)}
           emptyLabel="Nada pendiente de salud."
           markOverdue
         />
         <TaskSection
-          icon="📋"
           title="Historial"
           tasks={withSubtitle(history)}
           emptyLabel="Todavía no hay nada en el historial."

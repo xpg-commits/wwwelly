@@ -17,7 +17,7 @@ export function SummaryPanel() {
         <p className="text-sm leading-relaxed text-foreground/90">{summary}</p>
       ) : (
         <p className="text-sm text-muted-foreground">
-          Deja que Narela te cuente cómo han ido los últimos meses.
+          Deja que wwwelly te cuente cómo han ido los últimos meses.
         </p>
       )}
       <Button

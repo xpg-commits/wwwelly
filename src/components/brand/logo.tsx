@@ -1,6 +1,7 @@
-// Three overlapping circles in a triangular arrangement, blended with
-// multiply where they intersect — the "color mixing" diagram look the user
-// asked for, minimalist and in the brand palette instead of literal RGB.
+// wwwelly's mark: a single flat dot in the brand's sage-teal accent — the
+// small circle that sits before the "wwwelly" wordmark in the header. Reused
+// on its own (no text) anywhere a compact brand glyph is needed, e.g. as the
+// icon for the "Todo" filter entry.
 export function Logo({ className, size = 28 }: { className?: string; size?: number }) {
   return (
     <svg
@@ -11,11 +12,7 @@ export function Logo({ className, size = 28 }: { className?: string; size?: numb
       className={className}
       aria-hidden
     >
-      <g style={{ mixBlendMode: "multiply" }}>
-        <circle cx="20" cy="13" r="11" fill="var(--member-terracota)" fillOpacity="0.85" />
-        <circle cx="12" cy="26" r="11" fill="var(--member-azul)" fillOpacity="0.85" />
-        <circle cx="28" cy="26" r="11" fill="var(--member-mostaza)" fillOpacity="0.85" />
-      </g>
+      <circle cx="20" cy="20" r="20" fill="var(--brand-teal)" />
     </svg>
   )
 }

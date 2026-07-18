@@ -17,16 +17,19 @@ import { QuickAddTaskForm } from "@/components/tasks/quick-add-task-form"
 import { AssistantForm } from "@/components/ai/assistant-form"
 
 // The one place in the app where a new task gets created from scratch:
-// either type it yourself, or describe the situation and let Narela turn it
+// either type it yourself, or describe the situation and let wwwelly turn it
 // into a plan. Available everywhere via the header, not just the dashboard.
 export function AddTaskDialog({
   members,
   currentMemberId,
+  childOptions,
   floating = false,
   navIcon = false,
 }: {
   members: { id: string; name: string }[]
   currentMemberId: string
+  // Kids that can be marked as helping/participating in the task.
+  childOptions?: { id: string; name: string }[]
   floating?: boolean
   // Sits inline inside the bottom nav pill, popped up slightly as the
   // row's one elevated "primary action" button.
@@ -68,22 +71,23 @@ export function AddTaskDialog({
         <DialogHeader>
           <DialogTitle>Añadir tarea</DialogTitle>
           <DialogDescription>
-            A mano, o cuéntaselo a Narela y te propone el plan.
+            A mano, o cuéntaselo a wwwelly y te propone el plan.
           </DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="manual">
           <TabsList className="w-full">
             <TabsTrigger value="manual" className="flex-1">
-              ✍️ Escribir yo
+              Escribir yo
             </TabsTrigger>
             <TabsTrigger value="assistant" className="flex-1">
-              💬 Hablar con Narela
+              Hablar con wwwelly
             </TabsTrigger>
           </TabsList>
           <TabsContent value="manual" className="pt-2">
             <QuickAddTaskForm
               members={members}
               currentMemberId={currentMemberId}
+              childOptions={childOptions}
               onSuccess={() => setOpen(false)}
             />
           </TabsContent>

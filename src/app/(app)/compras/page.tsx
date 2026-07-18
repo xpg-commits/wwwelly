@@ -12,7 +12,7 @@ export default async function ComprasPage() {
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-6 py-10">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">🛒 Compras</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Compras</h1>
         <p className="text-muted-foreground">
           Los productos que siempre se acaban, sin tener que volver a
           escribirlos cada vez.
@@ -24,7 +24,7 @@ export default async function ComprasPage() {
       {suggested.length > 0 && (
         <section className="space-y-2">
           <h2 className="text-sm font-medium text-muted-foreground">
-            💡 Puede que te esté haciendo falta
+            Puede que te esté haciendo falta
           </h2>
           <div className="space-y-1.5">
             {suggested.map((item) => (
@@ -41,7 +41,7 @@ export default async function ComprasPage() {
 
       <section className="space-y-2">
         <h2 className="text-sm font-medium text-muted-foreground">
-          ☑ Lista de la compra
+          Lista de la compra
         </h2>
         {active.length === 0 && dormant.length === 0 ? (
           <p className="rounded-md border border-dashed px-3 py-4 text-sm text-muted-foreground">

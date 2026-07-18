@@ -44,14 +44,12 @@ export default async function VehicleDetailPage({
 
       <div className="space-y-6">
         <TaskSection
-          icon="☑"
           title="Pendiente"
           tasks={pending}
           emptyLabel="Nada pendiente para este vehículo."
           markOverdue
         />
         <TaskSection
-          icon="📋"
           title="Historial"
           tasks={history}
           emptyLabel="Todavía no hay nada en el historial."

@@ -13,12 +13,10 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { AddTaskDialog } from "@/components/tasks/add-task-dialog"
-import { Logo } from "@/components/brand/logo"
 import {
   ALL_FILTER_KEY,
   DEFAULT_MODULE_ORDER,
   filterHref,
-  filterIcon,
   filterLabel,
   type FilterKey,
 } from "@/lib/modules"
@@ -30,12 +28,14 @@ export function BottomNav({
   moduleOrder,
   members,
   currentMemberId,
+  childOptions,
   avatarHref = "/ajustes/perfil",
 }: {
   enabledModules: FilterKey[]
   moduleOrder: FilterKey[]
   members: { id: string; name: string }[]
   currentMemberId: string
+  childOptions?: { id: string; name: string }[]
   avatarHref?: string
 }) {
   const pathname = usePathname()
@@ -74,7 +74,13 @@ export function BottomNav({
             <LayoutGridIcon className="size-5" />
           </button>
 
-          <AddTaskDialog members={members} currentMemberId={currentMemberId} floating navIcon />
+          <AddTaskDialog
+            members={members}
+            currentMemberId={currentMemberId}
+            childOptions={childOptions}
+            floating
+            navIcon
+          />
 
           <Link
             href="/resumen"
@@ -107,21 +113,17 @@ export function BottomNav({
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="bottom" className="rounded-t-3xl p-5 pb-8">
           <SheetHeader className="px-0">
-            <SheetTitle className="flex items-center gap-2">
-              <Logo size={20} />
-              Módulos
-            </SheetTitle>
+            <SheetTitle>Módulos</SheetTitle>
           </SheetHeader>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="flex flex-col gap-1">
             {modules.map((key) => (
               <Link
                 key={key}
                 href={filterHref(key) ?? "/dashboard"}
                 onClick={() => setSheetOpen(false)}
-                className="flex flex-col items-center gap-2 rounded-2xl bg-muted/60 py-4 text-center transition-transform active:scale-95"
+                className="whitespace-nowrap rounded-xl bg-muted/60 px-4 py-3 text-sm font-medium transition-transform active:scale-[0.98]"
               >
-                <span className="text-2xl">{filterIcon(key)}</span>
-                <span className="text-xs font-medium">{filterLabel(key)}</span>
+                {filterLabel(key)}
               </Link>
             ))}
           </div>

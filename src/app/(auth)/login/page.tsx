@@ -17,7 +17,7 @@ export default function LoginPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Entrar en Narela</CardTitle>
+        <CardTitle>Entrar en wwwelly</CardTitle>
         <CardDescription>
           La memoria de tu hogar te está esperando.
         </CardDescription>

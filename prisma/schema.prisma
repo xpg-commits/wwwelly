@@ -97,8 +97,7 @@ model Household {
 
   enabledModules String[] @default(["HOME", "PET", "VEHICLE", "CHILD", "HEALTH", "SHOPPING"])
 
-  moduleOrder      String[] @default(["ALL","HOME","PET","VEHICLE","CHILD","HEALTH","SHOPPING"])
-  primaryModuleKey String?
+  moduleOrder String[] @default(["ALL","HOME","PET","VEHICLE","CHILD","HEALTH","SHOPPING"])
 
   @@unique([slug])
   @@map("household")
@@ -306,6 +305,20 @@ model Task {
   recurrenceType         RecurrenceType @default(NONE)
   recurrenceIntervalDays Int?
   previousTaskId         String?        @unique
+
+  // Ordered list of member ids taking turns on this task — empty means
+  // fixed assignment (today's default behavior, assignedToMemberId never
+  // changes across recurrences). 2+ ids means "rotativo": each time this
+  // task's recurrence materializes the next occurrence, assignedToMemberId
+  // advances to whoever comes after the current assignee in this list,
+  // wrapping back to the start. See setTaskStatus() in services/tasks.ts.
+  rotationMemberIds String[] @default([])
+
+  // Children (Child profiles, no login) involved/helping with this task —
+  // different from childId above, which is who the task is *about* (e.g. a
+  // health task's subject). A chore can have both: childId null, but two
+  // kids listed here as helping out with it.
+  involvedChildIds String[] @default([])
 
   household          Household            @relation(fields: [householdId], references: [id], onDelete: Cascade)
   pet                Pet?                 @relation(fields: [petId], references: [id], onDelete: SetNull)

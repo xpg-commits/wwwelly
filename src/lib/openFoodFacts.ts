@@ -3,7 +3,7 @@
 // (1 = unprocessed, 4 = ultra-processed) is the same underlying concept
 // their own classification is built on. Never throws: a shopping item like
 // "papel higiénico" just won't match anything, and that's fine — no dot.
-const USER_AGENT = "Narela/1.0 (+hola@xiomaraperez.com)"
+const USER_AGENT = "wwwelly/1.0 (+hola@xiomaraperez.com)"
 
 export async function lookupNovaGroup(productName: string): Promise<number | null> {
   try {

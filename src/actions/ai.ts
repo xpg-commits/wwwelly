@@ -170,7 +170,7 @@ export async function confirmTaskPlanAction(
   return { success: true, data: undefined }
 }
 
-async function describeAiError(error: unknown): Promise<string> {
+export async function describeAiError(error: unknown): Promise<string> {
   if (error instanceof AiRefusalError || error instanceof AiInvalidOutputError) {
     return error.message
   }

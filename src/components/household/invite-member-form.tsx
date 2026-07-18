@@ -23,9 +23,8 @@ export function InviteMemberForm() {
               toast.error(result.error)
               return
             }
-            const link = `${window.location.origin}/invitacion/${result.data.invitationId}`
-            setInviteLink(link)
-            toast.success("Invitación creada. Comparte el enlace con esa persona.")
+            setInviteLink(result.data.inviteUrl)
+            toast.success("Invitación enviada por email.")
           })
         }}
       >
@@ -39,7 +38,8 @@ export function InviteMemberForm() {
       </form>
       {inviteLink && (
         <p className="break-all rounded-md bg-muted p-3 text-sm text-muted-foreground">
-          Envíale este enlace (aún no enviamos emails automáticamente):{" "}
+          Le hemos mandado un email, pero también puedes compartirle este
+          enlace directamente:{" "}
           <span className="font-medium text-foreground">{inviteLink}</span>
         </p>
       )}

@@ -2,12 +2,12 @@
 // hogar — GENERAL isn't here because the dashboard/general tasks always
 // apply regardless of which domain modules a household actually uses.
 export const HOUSEHOLD_MODULES = [
-  { key: "HOME", label: "Hogar", icon: "🏠", href: "/hogar" },
-  { key: "PET", label: "Mascotas", icon: "🐶", href: "/mascotas" },
-  { key: "VEHICLE", label: "Vehículos", icon: "🚗", href: "/vehiculos" },
-  { key: "CHILD", label: "Niños", icon: "👶", href: "/ninos" },
-  { key: "HEALTH", label: "Salud", icon: "💊", href: "/salud" },
-  { key: "SHOPPING", label: "Compras", icon: "🛒", href: "/compras" },
+  { key: "HOME", label: "Hogar", href: "/hogar" },
+  { key: "PET", label: "Mascotas", href: "/mascotas" },
+  { key: "VEHICLE", label: "Vehículos", href: "/vehiculos" },
+  { key: "CHILD", label: "Niños", href: "/ninos" },
+  { key: "HEALTH", label: "Salud", href: "/salud" },
+  { key: "SHOPPING", label: "Compras", href: "/compras" },
 ] as const
 
 export type HouseholdModuleKey = (typeof HOUSEHOLD_MODULES)[number]["key"]
@@ -35,11 +35,6 @@ export function isFilterKey(value: unknown): value is FilterKey {
 export function filterLabel(key: FilterKey): string {
   if (key === ALL_FILTER_KEY) return "Todo"
   return HOUSEHOLD_MODULES.find((m) => m.key === key)?.label ?? key
-}
-
-export function filterIcon(key: FilterKey): string {
-  if (key === ALL_FILTER_KEY) return "🏠"
-  return HOUSEHOLD_MODULES.find((m) => m.key === key)?.icon ?? "•"
 }
 
 export function filterHref(key: FilterKey): string | undefined {

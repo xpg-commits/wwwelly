@@ -1,15 +1,20 @@
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: narela-postgres
+    container_name: wwwelly-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: narela
-      POSTGRES_PASSWORD: narela_dev_password
-      POSTGRES_DB: narela
+      POSTGRES_USER: wwwelly
+      POSTGRES_PASSWORD: wwwelly_dev_password
+      POSTGRES_DB: wwwelly
     ports:
       - "5432:5432"
     volumes:
+      # Name kept as-is on purpose — this is the volume that already holds
+      # real local dev data under the old narela_postgres_data label;
+      # renaming it here would make Compose create a new, empty volume
+      # instead of reusing this one. Purely an internal Docker identifier,
+      # never seen by the app or a user.
       - narela_postgres_data:/var/lib/postgresql/data
 
 volumes:

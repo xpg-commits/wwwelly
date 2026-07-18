@@ -6,6 +6,7 @@ import { APIError } from "better-auth"
 import { auth } from "@/lib/auth"
 import { memberLimitForPlan } from "@/lib/plan"
 import { DEFAULT_MODULE_ORDER } from "@/lib/modules"
+import { sendEmail } from "@/lib/email"
 
 type ActionResult<T = undefined> =
   | { success: true; data: T }
@@ -74,7 +75,7 @@ export async function activateHouseholdAction(organizationId: string): Promise<A
 
 export async function inviteMember(
   formData: FormData
-): Promise<ActionResult<{ invitationId: string }>> {
+): Promise<ActionResult<{ invitationId: string; inviteUrl: string }>> {
   const email = String(formData.get("email") ?? "").trim()
   if (!email) {
     return { success: false, error: "Escribe un email." }
@@ -85,7 +86,10 @@ export async function inviteMember(
   // Better Auth only enforces `membershipLimit` at accept time (see the
   // comment in lib/auth.ts) — checked here too so the inviter gets
   // immediate feedback instead of the invitee hitting a dead end later.
-  const household = await auth.api.getFullOrganization({ headers: reqHeaders })
+  const [household, session] = await Promise.all([
+    auth.api.getFullOrganization({ headers: reqHeaders }),
+    auth.api.getSession({ headers: reqHeaders }),
+  ])
   if (household) {
     const limit = memberLimitForPlan((household as { planTier?: string }).planTier)
     if (household.members.length >= limit) {
@@ -101,7 +105,30 @@ export async function inviteMember(
       body: { email, role: "member" },
       headers: reqHeaders,
     })
-    return { success: true, data: { invitationId: invitation.id } }
+
+    const inviteUrl = `${process.env.BETTER_AUTH_URL}/invitacion/${invitation.id}`
+
+    // Best-effort — a failed/unconfigured email shouldn't block the invite
+    // itself, since the link is always shown to the inviter as a fallback
+    // they can share manually (WhatsApp, etc.).
+    try {
+      await sendEmail({
+        to: email,
+        subject: `${session?.user.name ?? "Alguien"} te ha invitado a ${household?.name ?? "su hogar"} en wwwelly`,
+        html: `
+          <p>Hola,</p>
+          <p><strong>${session?.user.name ?? "Alguien"}</strong> te ha invitado a unirte a
+          <strong>${household?.name ?? "su hogar"}</strong> en wwwelly, la app que organiza
+          y reparte las tareas del hogar entre todos.</p>
+          <p><a href="${inviteUrl}">Aceptar invitación</a></p>
+          <p>Si no esperabas esta invitación, puedes ignorar este email.</p>
+        `,
+      })
+    } catch (emailError) {
+      console.error("[inviteMember] no se pudo enviar el email de invitación", emailError)
+    }
+
+    return { success: true, data: { invitationId: invitation.id, inviteUrl } }
   } catch (error) {
     if (error instanceof APIError) {
       const message =

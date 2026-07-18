@@ -57,6 +57,8 @@ export function TemplateApplyForm({
     childId: null,
     relatedMemberId: null,
     assignedToMemberId: null,
+    rotationMemberIds: null,
+    involvedChildIds: null,
   }))
 
   if (!triggerDate) {

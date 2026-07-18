@@ -35,7 +35,7 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       await sendEmail({
         to: user.email,
-        subject: "Recupera tu contraseña de Narela",
+        subject: "Recupera tu contraseña de wwwelly",
         html: `
           <p>Hola ${user.name},</p>
           <p>Pulsa el siguiente enlace para elegir una contraseña nueva. Caduca en 1 hora.</p>
@@ -86,13 +86,6 @@ export const auth = betterAuth({
               type: "string[]",
               required: true,
               defaultValue: DEFAULT_MODULE_ORDER,
-            },
-            // The one module pinned right after "Todo" in the chip bar,
-            // regardless of custom order — chosen from Configuración del
-            // hogar.
-            primaryModuleKey: {
-              type: "string",
-              required: false,
             },
           },
         },

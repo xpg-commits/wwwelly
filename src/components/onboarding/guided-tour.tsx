@@ -27,7 +27,7 @@ const STEPS = [
     target: "add-task-fab",
     icon: PlusCircleIcon,
     title: "El botón + lo crea todo",
-    body: "Escríbela tú a mano, o cuéntasela a Narela y te propone el plan.",
+    body: "Escríbela tú a mano, o cuéntasela a wwwelly y te propone el plan.",
   },
   {
     target: "user-menu",
@@ -40,7 +40,7 @@ const STEPS = [
 type Rect = { top: number; left: number; width: number; height: number }
 
 function tourStorageKey(memberId: string) {
-  return `narela-tour-seen-${memberId}`
+  return `wwwelly-tour-seen-${memberId}`
 }
 
 function measure(target: string): Rect | null {

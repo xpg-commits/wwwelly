@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-poppins);
+  --font-sans: var(--font-syne);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-poppins);
+  --font-heading: var(--font-syne);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,63 +49,70 @@
 }
 
 /*
- * Narela brand palette v3 — cool lavender/indigo, from a moodboard the user
- * shared (exact hexes converted to OKLCH): background #F9F8FF, gradient
- * #7F7BC3 → #D8BBEB, accents #C1BFF1 / #4E499B, text #272224. --gradient-*
- * feed the soft page-background wash in @layer base (body), lightened well
- * below the moodboard's saturation since it washes behind an entire task
- * list, not a single hero image.
+ * wwwelly brand palette v4 — cream/navy with teal + lavender accents,
+ * extracted from the wwwelly reference screenshots (exact hexes converted to
+ * OKLCH): background #FBF7F3, text #1F2430, teal accent #A3C7BB, lavender
+ * accent #B3A6EE, dark pill buttons match the navy text color rather than a
+ * separate brand hue. --gradient-* feed the soft page-background wash in
+ * @layer base (body) — a warm cream-to-white version of the same mechanism
+ * used for the previous lavender palette, not a new pattern.
  *
- * --member-* stays the earlier warm five-color set (terracotta/olive/dusty
- * pink/powder blue/mustard) — those identify *people*, not brand chrome, and
- * read fine as warm accents against the new cool background; not part of
- * this repaint.
+ * --member-* (terracotta/olive/dusty pink/powder blue/mustard/turquesa/
+ * violeta/fucsia/esmeralda/pizarra) retuned to match this palette's mood —
+ * same 10 hue slots and keys (stored on real HouseholdMember rows, never
+ * renamed), lower chroma and a shared lightness band so they read as one
+ * family, with turquesa/violeta snapped to the exact brand teal/lavender
+ * hues (173/292) instead of an unrelated warm set bolted onto a cool brand.
  */
 :root {
-  --background: oklch(0.982 0.009 293);
-  --foreground: oklch(0.258 0.008 352);
+  --background: oklch(0.978 0.007 67.7);
+  --foreground: oklch(0.261 0.024 267.1);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.258 0.008 352);
+  --card-foreground: oklch(0.261 0.024 267.1);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.258 0.008 352);
-  --primary: oklch(0.454 0.129 283);
-  --primary-foreground: oklch(0.98 0.01 290);
-  --secondary: oklch(0.823 0.07 287);
-  --secondary-foreground: oklch(0.454 0.129 283);
-  --muted: oklch(0.96 0.015 290);
-  --muted-foreground: oklch(0.5 0.03 285);
-  --accent: oklch(0.823 0.07 287);
-  --accent-foreground: oklch(0.454 0.129 283);
-  --destructive: oklch(0.6 0.19 25);
-  --border: oklch(0.9 0.02 290);
-  --input: oklch(0.9 0.02 290);
-  --ring: oklch(0.616 0.108 285);
-  --chart-1: oklch(0.454 0.129 283);
-  --chart-2: oklch(0.6 0.1 135);
-  --chart-3: oklch(0.75 0.1 10);
-  --chart-4: oklch(0.7 0.08 235);
-  --chart-5: oklch(0.8 0.13 85);
-  --member-terracota: oklch(0.68 0.15 45);
-  --member-oliva: oklch(0.6 0.1 135);
-  --member-rosa: oklch(0.75 0.1 10);
-  --member-azul: oklch(0.7 0.08 235);
-  --member-mostaza: oklch(0.8 0.13 85);
-  --member-turquesa: oklch(0.68 0.1 190);
-  --member-violeta: oklch(0.62 0.13 300);
-  --member-fucsia: oklch(0.68 0.15 340);
-  --member-esmeralda: oklch(0.6 0.12 165);
-  --member-pizarra: oklch(0.58 0.02 260);
-  --gradient-start: oklch(0.9 0.035 285);
-  --gradient-end: oklch(0.93 0.025 312);
+  --popover-foreground: oklch(0.261 0.024 267.1);
+  --primary: oklch(0.26 0.018 266.3);
+  --primary-foreground: oklch(0.978 0.007 67.7);
+  /* #DFD1F4 — the second brand color, as important as the logo's teal.
+     Secondary buttons/badges/chips use this; teal (--accent, --brand-teal)
+     stays the soft ambient wash color and the logo's own fixed hue. */
+  --secondary: oklch(0.883 0.05 303.5);
+  --secondary-foreground: oklch(0.261 0.024 267.1);
+  --muted: oklch(0.938 0.012 67.7);
+  --muted-foreground: oklch(0.541 0.012 261.8);
+  --accent: oklch(0.8 0.042 173);
+  --accent-foreground: oklch(0.261 0.024 267.1);
+  --brand-teal: oklch(0.8 0.042 173);
+  --destructive: oklch(0.619 0.169 25);
+  --border: oklch(0.891 0.018 64.9);
+  --input: oklch(0.891 0.018 64.9);
+  --ring: oklch(0.713 0.055 173);
+  --chart-1: oklch(0.8 0.042 173);
+  --chart-2: oklch(0.763 0.103 292.1);
+  --chart-3: oklch(0.26 0.018 266.3);
+  --chart-4: oklch(0.856 0.031 35.5);
+  --chart-5: oklch(0.785 0.115 86.8);
+  --brand-lavender: oklch(0.763 0.103 292.1);
+  --brand-lavender-foreground: oklch(0.261 0.024 267.1);
+  --member-terracota: oklch(0.68 0.1 45);
+  --member-oliva: oklch(0.65 0.09 135);
+  --member-rosa: oklch(0.72 0.09 10);
+  --member-azul: oklch(0.68 0.09 235);
+  --member-mostaza: oklch(0.75 0.1 85);
+  --member-turquesa: oklch(0.68 0.09 173);
+  --member-violeta: oklch(0.68 0.11 292);
+  --member-fucsia: oklch(0.65 0.11 340);
+  --member-esmeralda: oklch(0.62 0.1 165);
+  --member-pizarra: oklch(0.58 0.05 260);
   --radius: 1rem;
-  --sidebar: oklch(0.975 0.012 293);
-  --sidebar-foreground: oklch(0.258 0.008 352);
-  --sidebar-primary: oklch(0.454 0.129 283);
-  --sidebar-primary-foreground: oklch(0.98 0.01 290);
-  --sidebar-accent: oklch(0.823 0.07 287);
-  --sidebar-accent-foreground: oklch(0.454 0.129 283);
-  --sidebar-border: oklch(0.9 0.02 290);
-  --sidebar-ring: oklch(0.616 0.108 285);
+  --sidebar: oklch(0.968 0.009 67.7);
+  --sidebar-foreground: oklch(0.261 0.024 267.1);
+  --sidebar-primary: oklch(0.26 0.018 266.3);
+  --sidebar-primary-foreground: oklch(0.978 0.007 67.7);
+  --sidebar-accent: oklch(0.8 0.042 173);
+  --sidebar-accent-foreground: oklch(0.261 0.024 267.1);
+  --sidebar-border: oklch(0.891 0.018 64.9);
+  --sidebar-ring: oklch(0.713 0.055 173);
 }
 
 .dark {
@@ -154,16 +161,11 @@
   }
   body {
     @apply text-foreground;
+    /* Flat cream background, no gradient wash or glow — wwwelly's reference
+       look is clean and flat, not a moodboard glow-behind-the-phone effect
+       (that also caused a blotchy tint to bleed through translucent cards
+       like bg-muted/60). */
     background-color: var(--background);
-    /* Soft fixed wash behind every page — a hint of the moodboard's
-       lavender-to-pink gradient, not a loud hero-image version of it. */
-    background-image: linear-gradient(
-      180deg,
-      var(--gradient-start) 0%,
-      var(--background) 45%,
-      var(--gradient-end) 100%
-    );
-    background-attachment: fixed;
   }
   h1,
   h2,
@@ -187,12 +189,6 @@
    * (forms, settings) don't wobble on hover. */
   .card-interactive {
     @apply transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(70,60,140,0.14)];
-  }
-
-  /* Large soft blurred color fields, fixed behind the whole app shell —
-   * the moodboard's glow-behind-the-phone look, dialed down to a wash. */
-  .bg-orb {
-    @apply pointer-events-none fixed rounded-full blur-3xl;
   }
 }
 

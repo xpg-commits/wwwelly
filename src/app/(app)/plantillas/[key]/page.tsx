@@ -18,7 +18,7 @@ export default async function TemplateDetailPage({
     <div className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-6 py-10">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">
-          {template.icon} {template.name}
+          {template.name}
         </h1>
         <p className="text-muted-foreground">{template.description}</p>
       </div>

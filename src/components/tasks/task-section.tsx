@@ -13,14 +13,12 @@ type TaskForSection = {
 }
 
 export function TaskSection({
-  icon,
   title,
   tasks,
   emptyLabel,
   markOverdue = false,
   showAsDone = false,
 }: {
-  icon: string
   title: string
   tasks: TaskForSection[]
   emptyLabel: string
@@ -35,7 +33,7 @@ export function TaskSection({
   return (
     <section className="space-y-3.5">
       <h2 className="font-heading text-base font-semibold text-foreground/80">
-        {icon} {title}
+        {title}
       </h2>
       {tasks.length === 0 ? (
         <p className="rounded-2xl bg-muted/60 px-4 py-5 text-sm text-muted-foreground">

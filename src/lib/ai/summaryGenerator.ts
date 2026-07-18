@@ -25,7 +25,7 @@ export async function generateHouseholdSummary(
     model: SUMMARY_MODEL,
     max_tokens: 400,
     system:
-      "Eres el asistente de una app familiar de gestión del hogar (Narela). Te doy datos " +
+      "Eres el asistente de una app familiar de gestión del hogar (wwwelly). Te doy datos " +
       "agregados de tareas completadas en las últimas 12 semanas y debes escribir un resumen " +
       "breve (2-4 frases), cálido y motivador, en español, dirigido a toda la familia. Pon en " +
       "valor lo que ha hecho cada miembro por su nombre (sin inventar datos que no te doy). No " +

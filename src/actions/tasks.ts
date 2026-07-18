@@ -109,6 +109,19 @@ export async function createTaskAction(formData: FormData): Promise<ActionResult
       : undefined
   const recurrenceIntervalDays = recurrenceType ? intervalDays : undefined
 
+  // Kids helping/participating in the task — a hidden checkbox list, still
+  // client-supplied, so re-verify every id actually belongs to this
+  // household before trusting it (same reasoning as petId/vehicleId/etc).
+  const involvedChildIdsRaw = formData.getAll("involvedChildIds").map(String)
+  const involvedChildIds = involvedChildIdsRaw.length > 0
+    ? (
+        await db.child.findMany({
+          where: { id: { in: involvedChildIdsRaw }, householdId },
+          select: { id: true },
+        })
+      ).map((c) => c.id)
+    : []
+
   await taskService.createTask({
     householdId,
     title,
@@ -122,6 +135,7 @@ export async function createTaskAction(formData: FormData): Promise<ActionResult
     createdByMemberId: member.id,
     recurrenceType,
     recurrenceIntervalDays,
+    involvedChildIds,
   })
 
   return { success: true }
@@ -161,7 +175,22 @@ export async function updateTaskAction(
     }
   }
 
-  await taskService.updateTask(taskId, { title, dueDate, assignedToMemberId })
+  const involvedChildIdsRaw = formData.getAll("involvedChildIds").map(String)
+  const involvedChildIds = involvedChildIdsRaw.length > 0
+    ? (
+        await db.child.findMany({
+          where: { id: { in: involvedChildIdsRaw }, householdId },
+          select: { id: true },
+        })
+      ).map((c) => c.id)
+    : []
+
+  await taskService.updateTask(taskId, {
+    title,
+    dueDate,
+    assignedToMemberId,
+    involvedChildIds,
+  })
   return { success: true }
 }
 
@@ -185,10 +214,13 @@ export async function setTaskStatusAction(
 
 export type TaskDetail = NonNullable<Awaited<ReturnType<typeof taskService.getTask>>>
 export type TaskDetailMember = { id: string; name: string }
+export type TaskDetailChild = { id: string; name: string }
 
 export async function getTaskDetailAction(
   taskId: string
-): Promise<DataActionResult<{ task: TaskDetail; members: TaskDetailMember[] }>> {
+): Promise<
+  DataActionResult<{ task: TaskDetail; members: TaskDetailMember[]; children: TaskDetailChild[] }>
+> {
   const { householdId } = await requireActiveMember()
 
   const task = await taskService.getTask(taskId)
@@ -196,11 +228,14 @@ export async function getTaskDetailAction(
     return { success: false, error: "Tarea no encontrada." }
   }
 
-  const household = await auth.api.getFullOrganization({ headers: await headers() })
+  const [household, childRows] = await Promise.all([
+    auth.api.getFullOrganization({ headers: await headers() }),
+    db.child.findMany({ where: { householdId }, select: { id: true, name: true } }),
+  ])
   const members = (household?.members ?? []).map((m) => ({
     id: m.id,
     name: (m as { displayName?: string | null }).displayName ?? m.user.name,
   }))
 
-  return { success: true, data: { task, members } }
+  return { success: true, data: { task, members, children: childRows } }
 }

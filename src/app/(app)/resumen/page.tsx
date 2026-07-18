@@ -19,7 +19,7 @@ export default async function ResumenPage() {
     <div className="mx-auto w-full max-w-2xl flex-1 space-y-8 px-6 py-12 pb-16">
       <div>
         <h1 className="font-heading text-3xl font-semibold tracking-tight">
-          📊 Resumen
+          Resumen
         </h1>
         <p className="mt-1.5 text-muted-foreground">
           Los últimos 3 meses de {stats.totalCompleted}{" "}
@@ -29,7 +29,7 @@ export default async function ResumenPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>✨ Narela te cuenta</CardTitle>
+          <CardTitle>wwwelly te cuenta</CardTitle>
           <CardDescription>Un resumen escrito, no solo números.</CardDescription>
         </CardHeader>
         <CardContent>
