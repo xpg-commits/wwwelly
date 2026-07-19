@@ -66,6 +66,14 @@ export const auth = betterAuth({
         type: "string",
         required: false,
       },
+      // Optional, free-form-with-presets — how this person wants to be
+      // referred to (used in copy like task titles). Deliberately not an
+      // enum: a fixed list can't cover every pronoun, so the UI offers common
+      // presets plus a custom option, same idea as Slack's pronoun field.
+      pronouns: {
+        type: "string",
+        required: false,
+      },
     },
   },
   socialProviders: googleConfigured

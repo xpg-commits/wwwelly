@@ -25,6 +25,22 @@ export async function updateMyColorAction(color: string): Promise<ActionResult> 
   return { success: true }
 }
 
+export async function updateMyProfileAction(
+  data: { birthDate?: string; pronouns?: string }
+): Promise<ActionResult> {
+  await requireActiveMember()
+
+  await auth.api.updateUser({
+    body: {
+      ...(data.birthDate !== undefined && { birthDate: data.birthDate }),
+      ...(data.pronouns !== undefined && { pronouns: data.pronouns }),
+    },
+    headers: await headers(),
+  })
+
+  return { success: true }
+}
+
 export async function updateMyAvatarAction(formData: FormData): Promise<ActionResult> {
   await requireActiveMember()
 

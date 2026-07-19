@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { InviteMemberForm } from "@/components/household/invite-member-form"
+import { PendingInvitationsList } from "@/components/household/pending-invitations-list"
 
 const ROLE_LABEL: Record<string, string> = {
   ADULT: "Adulto",
@@ -19,7 +20,13 @@ const ROLE_LABEL: Record<string, string> = {
 
 export default async function MiembrosPage() {
   const reqHeaders = await headers()
-  const household = await auth.api.getFullOrganization({ headers: reqHeaders })
+  const [household, invitations] = await Promise.all([
+    auth.api.getFullOrganization({ headers: reqHeaders }),
+    auth.api.listInvitations({ headers: reqHeaders }),
+  ])
+  const pendingInvitations = invitations.filter(
+    (invitation) => invitation.status === "pending" && invitation.expiresAt > new Date()
+  )
 
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-6 py-10">
@@ -41,6 +48,13 @@ export default async function MiembrosPage() {
           <InviteMemberForm />
         </CardContent>
       </Card>
+
+      {pendingInvitations.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-medium text-muted-foreground">Invitaciones pendientes</h2>
+          <PendingInvitationsList invitations={pendingInvitations} />
+        </div>
+      )}
 
       <div className="space-y-2">
         {household?.members.map((member) => {

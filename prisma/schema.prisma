@@ -26,6 +26,8 @@ model User {
 
   birthDate String?
 
+  pronouns String?
+
   @@unique([email])
   @@map("user")
 }

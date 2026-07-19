@@ -9,10 +9,16 @@ import {
 } from "@/components/ui/card"
 import { LoginForm } from "@/components/auth/login-form"
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string; email?: string }>
+}) {
+  const { next, email } = await searchParams
   const googleEnabled = Boolean(
     process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
   )
+  const registerHref = `/registro${next ? `?next=${encodeURIComponent(next)}${email ? `&email=${encodeURIComponent(email)}` : ""}` : ""}`
 
   return (
     <Card>
@@ -23,10 +29,10 @@ export default function LoginPage() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <LoginForm googleEnabled={googleEnabled} />
+        <LoginForm googleEnabled={googleEnabled} next={next} defaultEmail={email} />
         <p className="text-center text-sm text-muted-foreground">
           ¿No tienes cuenta?{" "}
-          <Link href="/registro" className="font-medium text-foreground underline underline-offset-4">
+          <Link href={registerHref} className="font-medium text-foreground underline underline-offset-4">
             Crear una
           </Link>
         </p>

@@ -96,7 +96,7 @@ export function UserMenu({
               className="w-full whitespace-nowrap rounded-lg px-3 py-2.5 text-left text-sm text-destructive transition-colors hover:bg-muted"
               onClick={() => {
                 authClient.signOut().then(() => {
-                  router.push("/login")
+                  router.push("/")
                   router.refresh()
                 })
               }}

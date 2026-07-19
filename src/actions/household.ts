@@ -73,6 +73,28 @@ export async function activateHouseholdAction(organizationId: string): Promise<A
   return { success: true, data: undefined }
 }
 
+function inviteEmailContent({
+  inviterName,
+  householdName,
+  inviteUrl,
+}: {
+  inviterName: string
+  householdName: string
+  inviteUrl: string
+}) {
+  return {
+    subject: `${inviterName} te ha invitado a ${householdName} en wwwelly`,
+    html: `
+      <p>Hola,</p>
+      <p><strong>${inviterName}</strong> te ha invitado a unirte a
+      <strong>${householdName}</strong> en wwwelly, la app que organiza
+      y reparte las tareas del hogar entre todos.</p>
+      <p><a href="${inviteUrl}">Aceptar invitación</a></p>
+      <p>Si no esperabas esta invitación, puedes ignorar este email.</p>
+    `,
+  }
+}
+
 export async function inviteMember(
   formData: FormData
 ): Promise<ActionResult<{ invitationId: string; inviteUrl: string }>> {
@@ -114,15 +136,11 @@ export async function inviteMember(
     try {
       await sendEmail({
         to: email,
-        subject: `${session?.user.name ?? "Alguien"} te ha invitado a ${household?.name ?? "su hogar"} en wwwelly`,
-        html: `
-          <p>Hola,</p>
-          <p><strong>${session?.user.name ?? "Alguien"}</strong> te ha invitado a unirte a
-          <strong>${household?.name ?? "su hogar"}</strong> en wwwelly, la app que organiza
-          y reparte las tareas del hogar entre todos.</p>
-          <p><a href="${inviteUrl}">Aceptar invitación</a></p>
-          <p>Si no esperabas esta invitación, puedes ignorar este email.</p>
-        `,
+        ...inviteEmailContent({
+          inviterName: session?.user.name ?? "Alguien",
+          householdName: household?.name ?? "su hogar",
+          inviteUrl,
+        }),
       })
     } catch (emailError) {
       console.error("[inviteMember] no se pudo enviar el email de invitación", emailError)
@@ -139,6 +157,65 @@ export async function inviteMember(
     }
     throw error
   }
+}
+
+export async function cancelInvitationAction(invitationId: string): Promise<ActionResult> {
+  try {
+    await auth.api.cancelInvitation({
+      body: { invitationId },
+      headers: await headers(),
+    })
+  } catch (error) {
+    if (error instanceof APIError) {
+      return { success: false, error: error.body?.message ?? "No se pudo cancelar la invitación." }
+    }
+    throw error
+  }
+
+  return { success: true, data: undefined }
+}
+
+export async function resendInvitationAction(invitationId: string): Promise<ActionResult> {
+  const reqHeaders = await headers()
+
+  try {
+    const [household, session, invitations] = await Promise.all([
+      auth.api.getFullOrganization({ headers: reqHeaders }),
+      auth.api.getSession({ headers: reqHeaders }),
+      auth.api.listInvitations({ headers: reqHeaders }),
+    ])
+
+    const invitation = invitations.find((i) => i.id === invitationId)
+    if (!invitation) {
+      return { success: false, error: "La invitación ya no existe." }
+    }
+
+    // Bumps expiresAt another invitationExpiresIn window (default 48h) —
+    // doesn't create a new row/id, and doesn't send an email itself since
+    // this app doesn't set organization.sendInvitationEmail — we send our
+    // own below, same as inviteMember does on first send.
+    await auth.api.createInvitation({
+      body: { email: invitation.email, role: invitation.role, resend: true },
+      headers: reqHeaders,
+    })
+
+    const inviteUrl = `${process.env.BETTER_AUTH_URL}/invitacion/${invitationId}`
+    await sendEmail({
+      to: invitation.email,
+      ...inviteEmailContent({
+        inviterName: session?.user.name ?? "Alguien",
+        householdName: household?.name ?? "su hogar",
+        inviteUrl,
+      }),
+    })
+  } catch (error) {
+    if (error instanceof APIError) {
+      return { success: false, error: error.body?.message ?? "No se pudo reenviar la invitación." }
+    }
+    throw error
+  }
+
+  return { success: true, data: undefined }
 }
 
 export async function acceptInvite(invitationId: string): Promise<ActionResult> {

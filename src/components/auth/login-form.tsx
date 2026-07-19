@@ -26,12 +26,20 @@ const schema = z.object({
   password: z.string().min(1, "Introduce tu contraseña."),
 })
 
-export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
+export function LoginForm({
+  googleEnabled,
+  next,
+  defaultEmail,
+}: {
+  googleEnabled: boolean
+  next?: string
+  defaultEmail?: string
+}) {
   const router = useRouter()
   const [serverError, setServerError] = useState<string | null>(null)
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: defaultEmail ?? "", password: "" },
   })
 
   async function onSubmit(values: z.infer<typeof schema>) {
@@ -41,7 +49,7 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
       setServerError(error.message ?? "No se pudo iniciar sesión.")
       return
     }
-    router.push("/dashboard")
+    router.push(next ?? "/dashboard")
     router.refresh()
   }
 

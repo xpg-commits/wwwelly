@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PasswordInput } from "@/components/ui/password-input"
 import { DatePickerField } from "@/components/ui/date-picker-field"
+import { PronounField } from "@/components/shared/pronoun-field"
 import {
   Form,
   FormControl,
@@ -27,6 +28,7 @@ const schema = z
     name: z.string().min(1, "Dinos cómo te llamas."),
     email: z.string().email("Introduce un email válido."),
     birthDate: z.string().min(1, "Indica tu fecha de nacimiento."),
+    pronouns: z.string(),
     password: z.string().min(8, "Al menos 8 caracteres."),
     confirmPassword: z.string().min(8, "Al menos 8 caracteres."),
   })
@@ -35,7 +37,15 @@ const schema = z
     path: ["confirmPassword"],
   })
 
-export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
+export function RegisterForm({
+  googleEnabled,
+  next,
+  defaultEmail,
+}: {
+  googleEnabled: boolean
+  next?: string
+  defaultEmail?: string
+}) {
   const router = useRouter()
   const [serverError, setServerError] = useState<string | null>(null)
   const [step, setStep] = useState<"form" | "verify">("form")
@@ -43,7 +53,7 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", email: "", birthDate: "", password: "", confirmPassword: "" },
+    defaultValues: { name: "", email: defaultEmail ?? "", birthDate: "", pronouns: "", password: "", confirmPassword: "" },
   })
 
   async function onSubmit(values: z.infer<typeof schema>) {
@@ -53,6 +63,7 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
       email: values.email,
       password: values.password,
       birthDate: values.birthDate,
+      pronouns: values.pronouns,
     })
     if (error) {
       setServerError(error.message ?? "No se pudo crear la cuenta.")
@@ -63,7 +74,7 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
   }
 
   if (step === "verify") {
-    return <VerifyEmailStep email={email} />
+    return <VerifyEmailStep email={email} next={next} />
   }
 
   return (
@@ -109,6 +120,19 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
                     captionLayout="dropdown"
                     className="w-full"
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="pronouns"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>¿Cómo te gustaría que nos refiramos a ti? (opcional)</FormLabel>
+                <FormControl>
+                  <PronounField value={field.value} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -164,7 +188,7 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
 
 // Segundo paso: el registro ya creó la cuenta (sin sesión, a la espera de
 // verificar) y disparó el envío del código — aquí solo se comprueba.
-function VerifyEmailStep({ email }: { email: string }) {
+function VerifyEmailStep({ email, next }: { email: string; next?: string }) {
   const router = useRouter()
   const [otp, setOtp] = useState("")
   const [pending, setPending] = useState(false)
@@ -182,7 +206,7 @@ function VerifyEmailStep({ email }: { email: string }) {
       setError(error.message ?? "Código incorrecto o caducado.")
       return
     }
-    router.push("/dashboard")
+    router.push(next ?? "/dashboard")
     router.refresh()
   }
 
