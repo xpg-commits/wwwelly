@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Syne } from "next/font/google";
 import "./globals.css";
 
@@ -23,6 +23,22 @@ export const metadata: Metadata = {
   title: "wwwelly — La memoria de tu hogar",
   description:
     "La app que recuerda por ti todo lo que normalmente llevas en la cabeza.",
+  // manifest.ts's theme_color only reaches Android. iOS ignores it — without
+  // this, "Add to Home Screen" opens as a plain Safari bookmark (full
+  // browser chrome) instead of a real standalone app, and the status bar
+  // area falls back to a dark system default instead of matching our cream.
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "wwwelly",
+  },
+};
+
+// Separate from manifest.ts's theme_color: this generates the HTML
+// <meta name="theme-color"> tag, which is what Android Chrome/installed PWA
+// and iOS 15+ Safari actually read to tint their own browser chrome.
+export const viewport: Viewport = {
+  themeColor: "#FBF7F3",
 };
 
 export default function RootLayout({

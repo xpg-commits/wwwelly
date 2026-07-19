@@ -51,12 +51,12 @@ function InvitationRow({ invitation }: { invitation: { id: string; email: string
   }
 
   return (
-    <div className="list-row justify-between">
-      <div>
-        <p className="font-medium">{invitation.email}</p>
+    <div className="list-row flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0">
+        <p className="truncate font-medium">{invitation.email}</p>
         <p className="text-sm text-muted-foreground">Invitación pendiente</p>
       </div>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 self-end sm:self-auto">
         <Button variant="outline" size="sm" disabled={pending} onClick={resend}>
           Reenviar
         </Button>
