@@ -30,6 +30,7 @@ export function AddShoppingItemForm() {
       }}
     >
       <Input name="name" placeholder="Leche, papel, detergente…" required className="flex-1" />
+      <Input name="quantity" placeholder="Cantidad (opcional)" className="w-36" />
       <Button type="submit" disabled={pending}>
         {pending ? "Añadiendo…" : "Añadir"}
       </Button>

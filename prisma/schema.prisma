@@ -438,6 +438,9 @@ model ShoppingItem {
   id       String             @id @default(cuid())
   listId   String
   name     String
+  // Free text ("2kg", "1 docena", "3 uds") rather than a strict number —
+  // matches how people actually write a shopping list.
+  quantity String?
   category String?
   status   ShoppingItemStatus @default(ACTIVE)
 

@@ -12,7 +12,8 @@ export async function getOrCreateDefaultList(householdId: string) {
 export async function addShoppingItem(
   listId: string,
   name: string,
-  addedByMemberId: string | null
+  addedByMemberId: string | null,
+  quantity?: string | null
 ) {
   // Best-effort and awaited — this is a single low-frequency write, not a
   // hot path, and having the quality dot / category right on first render
@@ -23,8 +24,20 @@ export async function addShoppingItem(
   ])
 
   return db.shoppingItem.create({
-    data: { listId, name, status: "ACTIVE", addedByMemberId, novaGroup, category },
+    data: {
+      listId,
+      name,
+      quantity: quantity ?? null,
+      status: "ACTIVE",
+      addedByMemberId,
+      novaGroup,
+      category,
+    },
   })
+}
+
+export async function deleteShoppingItem(itemId: string) {
+  return db.shoppingItem.delete({ where: { id: itemId } })
 }
 
 export async function markItemPurchased(itemId: string, checkedByMemberId: string | null) {

@@ -13,9 +13,10 @@ export async function addShoppingItemAction(formData: FormData): Promise<ActionR
   if (!name) {
     return { success: false, error: "Escribe qué necesitas comprar." }
   }
+  const quantity = String(formData.get("quantity") ?? "").trim() || null
 
   const list = await shoppingService.getOrCreateDefaultList(householdId)
-  await shoppingService.addShoppingItem(list.id, name, member.id)
+  await shoppingService.addShoppingItem(list.id, name, member.id, quantity)
 
   return { success: true }
 }
@@ -47,5 +48,16 @@ export async function reactivateItemAction(itemId: string): Promise<ActionResult
   }
 
   await shoppingService.reactivateItem(itemId)
+  return { success: true }
+}
+
+export async function deleteShoppingItemAction(itemId: string): Promise<ActionResult> {
+  const { householdId } = await requireActiveMember()
+
+  if (!(await assertItemBelongsToHousehold(itemId, householdId))) {
+    return { success: false, error: "Producto no encontrado." }
+  }
+
+  await shoppingService.deleteShoppingItem(itemId)
   return { success: true }
 }
