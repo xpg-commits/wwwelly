@@ -30,6 +30,7 @@ import {
   filterHref,
   filterLabel,
   isFilterKey,
+  withBackfilledOrder,
   type FilterKey,
 } from "@/lib/modules"
 import { Logo } from "@/components/brand/logo"
@@ -81,14 +82,22 @@ export default async function AppLayout({
   ])
   const childOptions = childRows.map((c) => ({ id: c.id, name: c.name }))
 
+  const myMember = household?.members.find((m) => m.userId === session.user.id)
+  const myColor = (myMember as { color?: string } | undefined)?.color ?? "terracota"
+  const myHiddenModules = (myMember as { hiddenModules?: string[] } | undefined)?.hiddenModules ?? []
+
   const rawEnabled = (household as { enabledModules?: unknown })?.enabledModules
+  const householdEnabled = Array.isArray(rawEnabled) ? rawEnabled.filter(isFilterKey) : DEFAULT_MODULE_ORDER
+  // Household-wide enabled set, minus whatever THIS person has personally
+  // hidden from their own view (my-modules-form.tsx) — never the other way
+  // around, a module the household hasn't enabled can't be un-hidden here.
   const enabledSet = new Set<FilterKey>(
-    Array.isArray(rawEnabled) ? rawEnabled.filter(isFilterKey) : DEFAULT_MODULE_ORDER
+    householdEnabled.filter((key) => key === ALL_FILTER_KEY || !myHiddenModules.includes(key))
   )
   const rawOrder = (household as { moduleOrder?: unknown })?.moduleOrder
-  const order: FilterKey[] = Array.isArray(rawOrder)
-    ? rawOrder.filter(isFilterKey)
-    : DEFAULT_MODULE_ORDER
+  const order: FilterKey[] = withBackfilledOrder(
+    Array.isArray(rawOrder) ? rawOrder.filter(isFilterKey) : DEFAULT_MODULE_ORDER
+  )
 
   const moduleLinks = [
     ...order
@@ -100,9 +109,6 @@ export default async function AppLayout({
       })),
     { key: "TEMPLATES", href: "/plantillas", label: "Plantillas de rutinas" },
   ]
-
-  const myMember = household?.members.find((m) => m.userId === session.user.id)
-  const myColor = (myMember as { color?: string } | undefined)?.color ?? "terracota"
   const memberOptions = (household?.members ?? []).map((m) => ({
     id: m.id,
     name: (m as { displayName?: string | null }).displayName ?? m.user.name,

@@ -2,7 +2,7 @@ import { z } from "zod"
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod"
 
 import { Anthropic, TASK_PLANNER_MODEL, AiRefusalError, AiInvalidOutputError } from "./taskPlanner"
-import { TaskDraftSchema } from "./schemas"
+import { AiTaskDraftSchema } from "./schemas"
 import type { ChoreWizardAnswers } from "./choreSchemas"
 
 const client = new Anthropic()
@@ -14,7 +14,7 @@ const client = new Anthropic()
 const MAX_TASKS = 20
 
 export const ChoreDistributionPlanSchema = z.object({
-  tasks: z.array(TaskDraftSchema),
+  tasks: z.array(AiTaskDraftSchema),
   // 2-4 short sentences explaining how the load was balanced across
   // participants — shown to the user in the review screen.
   rationale: z.string(),

@@ -13,22 +13,27 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { applyTemplateAction } from "@/actions/templates"
 import type { TaskDraft } from "@/lib/ai/schemas"
+import type { TaskModule } from "@/generated/prisma/enums"
 
-const MODULE_LABEL: Record<TaskDraft["module"], string> = {
+// Templates are static, pre-seeded routines, not AI-generated — they can
+// still use every module (e.g. "Comprar detergente" in a Mudanza template),
+// so this reuses the full Prisma TaskModule enum, not TaskDraft's narrower
+// AI-only module set.
+const MODULE_LABEL: Record<TaskModule, string> = {
   GENERAL: "General",
   HOME: "Hogar",
   VEHICLE: "Vehículo",
   PET: "Mascota",
   CHILD: "Niños",
   HEALTH: "Salud",
-  SHOPPING: "Compras",
+  SHOPPING: "Lista de la compra",
 }
 
 type TemplateTask = {
   title: string
   description: string | null
   dayOffset: number
-  module: TaskDraft["module"]
+  module: TaskModule
 }
 
 export function TemplateApplyForm({

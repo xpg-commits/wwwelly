@@ -98,6 +98,7 @@ model Household {
   routineApplications RoutineApplication[]
   aiGenerations       AiGeneration[]
   shoppingLists       ShoppingList[]
+  habits              Habit[]
 
   enabledModules String[] @default(["HOME", "PET", "VEHICLE", "CHILD", "HEALTH", "SHOPPING"])
 
@@ -123,8 +124,12 @@ model HouseholdMember {
   createdTasks         Task[]         @relation("TaskCreatedBy")
   shoppingItemsAdded   ShoppingItem[] @relation("ShoppingItemAddedBy")
   shoppingItemsChecked ShoppingItem[] @relation("ShoppingItemCheckedBy")
+  habits               Habit[]
 
   color String @default("terracota")
+
+  gettingStartedDismissed Boolean  @default(false)
+  hiddenModules           String[] @default([])
 
   @@index([organizationId])
   @@index([userId])
@@ -291,6 +296,10 @@ model Task {
   visibility  TaskVisibility @default(HOUSEHOLD)
 
   dueDate     DateTime?
+  // "HH:mm", optional — dueDate itself is always written/compared at
+  // midnight throughout the app (day-granular bucketing), so time-of-day
+  // lives in its own field instead of overloading dueDate's time component.
+  dueTime     String?
   completedAt DateTime?
 
   petId              String?
@@ -461,4 +470,45 @@ model ShoppingItemPurchase {
   item ShoppingItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@index([itemId])
+}
+
+enum HabitType {
+  CHECKIN
+  REMINDER
+}
+
+// Personal, not shared with the rest of the household by default (unlike
+// Task, which defaults to HOUSEHOLD visibility) — a habit belongs to the
+// member who created it.
+model Habit {
+  id          String    @id @default(cuid())
+  householdId String
+  memberId    String
+  title       String
+  type        HabitType
+  goalNote    String?
+
+  // REMINDER only — how often to nudge, and the daily window to stay inside
+  // (avoids reminders firing overnight). Both null for CHECKIN habits.
+  intervalMinutes Int?
+  activeFrom      String?
+  activeTo        String?
+
+  archivedAt DateTime?
+  createdAt  DateTime   @default(now())
+  household  Household       @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  member     HouseholdMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  logs       HabitLog[]
+
+  @@index([householdId, memberId])
+}
+
+model HabitLog {
+  id       String   @id @default(cuid())
+  habitId  String
+  loggedAt DateTime @default(now())
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@index([habitId, loggedAt])
 }

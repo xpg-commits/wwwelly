@@ -25,6 +25,17 @@ export async function updateMyColorAction(color: string): Promise<ActionResult> 
   return { success: true }
 }
 
+export async function dismissGettingStartedBannerAction(): Promise<ActionResult> {
+  const { member } = await requireActiveMember()
+
+  await db.householdMember.update({
+    where: { id: member.id },
+    data: { gettingStartedDismissed: true },
+  })
+
+  return { success: true }
+}
+
 export async function updateMyProfileAction(
   data: { birthDate?: string; pronouns?: string }
 ): Promise<ActionResult> {

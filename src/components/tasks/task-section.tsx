@@ -6,6 +6,7 @@ type TaskForSection = {
   id: string
   title: string
   dueDate: Date | null
+  dueTime?: string | null
   completedAt?: Date | null
   subtitle?: string | null
   recurrenceType?: string
@@ -47,6 +48,7 @@ export function TaskSection({
               id={task.id}
               title={task.title}
               dueDate={task.dueDate}
+              dueTime={task.dueTime}
               overdue={markOverdue && Boolean(task.dueDate && task.dueDate < todayStart)}
               defaultDone={showAsDone}
               completedAt={showAsDone ? task.completedAt : null}

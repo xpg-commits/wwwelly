@@ -7,7 +7,8 @@ export const HOUSEHOLD_MODULES = [
   { key: "VEHICLE", label: "Vehículos", href: "/vehiculos" },
   { key: "CHILD", label: "Niños", href: "/ninos" },
   { key: "HEALTH", label: "Salud", href: "/salud" },
-  { key: "SHOPPING", label: "Compras", href: "/compras" },
+  { key: "SHOPPING", label: "Lista de la compra", href: "/compras" },
+  { key: "HABIT", label: "Hábitos", href: "/habitos" },
 ] as const
 
 export type HouseholdModuleKey = (typeof HOUSEHOLD_MODULES)[number]["key"]
@@ -30,6 +31,18 @@ export const DEFAULT_MODULE_ORDER: FilterKey[] = [ALL_FILTER_KEY, ...ALL_MODULE_
 
 export function isFilterKey(value: unknown): value is FilterKey {
   return value === ALL_FILTER_KEY || isHouseholdModuleKey(value)
+}
+
+// Anything missing from a stale/partial order (a module added to the app
+// since a household's moduleOrder was last saved) still shows up, appended
+// at the end — every read path that renders the module list from a saved
+// moduleOrder needs this, not just the editor that lets you reorder it.
+export function withBackfilledOrder(order: FilterKey[]): FilterKey[] {
+  const result = [...order]
+  for (const key of DEFAULT_MODULE_ORDER) {
+    if (!result.includes(key)) result.push(key)
+  }
+  return result
 }
 
 export function filterLabel(key: FilterKey): string {

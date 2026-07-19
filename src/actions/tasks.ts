@@ -27,6 +27,7 @@ export async function createTaskAction(formData: FormData): Promise<ActionResult
 
   const dueDateRaw = String(formData.get("dueDate") ?? "").trim()
   const dueDate = dueDateRaw ? new Date(`${dueDateRaw}T00:00:00`) : null
+  const dueTime = String(formData.get("dueTime") ?? "").trim() || null
 
   const moduleRaw = String(formData.get("module") ?? "").trim()
   const module = VALID_MODULES.has(moduleRaw) ? (moduleRaw as TaskModule) : undefined
@@ -126,6 +127,7 @@ export async function createTaskAction(formData: FormData): Promise<ActionResult
     householdId,
     title,
     dueDate,
+    dueTime,
     module,
     petId,
     vehicleId,

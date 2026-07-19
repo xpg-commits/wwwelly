@@ -16,12 +16,18 @@ import {
 import { buttonVariants } from "@/components/ui/button"
 import { Accordion } from "@/components/ui/accordion"
 import { ModuleOrderEditor } from "@/components/household/module-order-editor"
+import { HouseholdNameForm } from "@/components/household/household-name-form"
 import {
   PetsManagerSection,
   VehiclesManagerSection,
   ChildrenManagerSection,
 } from "@/components/household/entity-manager-sections"
-import { DEFAULT_MODULE_ORDER, isFilterKey, type FilterKey } from "@/lib/modules"
+import {
+  DEFAULT_MODULE_ORDER,
+  isFilterKey,
+  withBackfilledOrder,
+  type FilterKey,
+} from "@/lib/modules"
 
 export default async function ConfiguracionHogarPage() {
   const { householdId } = await requireActiveMember()
@@ -40,14 +46,9 @@ export default async function ConfiguracionHogarPage() {
     : DEFAULT_MODULE_ORDER
 
   const rawOrder = (household as { moduleOrder?: unknown })?.moduleOrder
-  const moduleOrder: FilterKey[] = Array.isArray(rawOrder)
-    ? rawOrder.filter(isFilterKey)
-    : DEFAULT_MODULE_ORDER
-  // Anything missing from a stale/partial order (new modules added since it
-  // was last saved) still shows up, appended at the end.
-  for (const key of DEFAULT_MODULE_ORDER) {
-    if (!moduleOrder.includes(key)) moduleOrder.push(key)
-  }
+  const moduleOrder: FilterKey[] = withBackfilledOrder(
+    Array.isArray(rawOrder) ? rawOrder.filter(isFilterKey) : DEFAULT_MODULE_ORDER
+  )
 
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-6 py-10">
@@ -56,9 +57,18 @@ export default async function ConfiguracionHogarPage() {
           Configuración del hogar
         </h1>
         <p className="text-muted-foreground">
-          Activa y ordena los módulos de {household?.name}.
+          Activa y ordena los módulos, y cambia el nombre de tu hogar.
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Nombre del hogar</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <HouseholdNameForm initialName={household?.name ?? ""} />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

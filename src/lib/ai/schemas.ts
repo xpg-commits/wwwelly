@@ -1,17 +1,16 @@
 import { z } from "zod"
 
+// General "draft that becomes a real Task row" contract, shared by the AI
+// planner AND by routine templates (some seeded templates legitimately tag
+// one-off errands like "Comprar los regalos" as SHOPPING — that's a fine use
+// of the module for a dated todo, distinct from the AI free-text assistant
+// inventing grocery items that belong in /compras instead). See
+// AiTaskDraftSchema below for the narrower module set the AI itself is
+// constrained to.
 export const TaskDraftSchema = z.object({
   title: z.string(),
   description: z.string().nullable(),
-  module: z.enum([
-    "GENERAL",
-    "HOME",
-    "VEHICLE",
-    "PET",
-    "CHILD",
-    "HEALTH",
-    "SHOPPING",
-  ]),
+  module: z.enum(["GENERAL", "HOME", "VEHICLE", "PET", "CHILD", "HEALTH", "SHOPPING"]),
   // Days relative to today (0 = today; negative if it should already be done).
   dueDateOffsetDays: z.number().int(),
   // Only set when the user explicitly asked for something recurring ("cada
@@ -51,3 +50,16 @@ export const TaskPlanSchema = z.object({
 
 export type TaskDraft = z.infer<typeof TaskDraftSchema>
 export type TaskPlan = z.infer<typeof TaskPlanSchema>
+
+// What the AI (free-text assistant + chore wizard) is actually allowed to
+// generate — SHOPPING excluded, since those flows interpret loose language
+// and would otherwise reinvent generic "buy milk" tasks that duplicate the
+// real /compras list. A narrower module set here is still structurally a
+// TaskDraft, so the AI's output can be used anywhere a TaskDraft is expected.
+export const AiTaskDraftSchema = TaskDraftSchema.extend({
+  module: z.enum(["GENERAL", "HOME", "VEHICLE", "PET", "CHILD", "HEALTH"]),
+})
+
+export const AiTaskPlanSchema = z.object({
+  tasks: z.array(AiTaskDraftSchema),
+})

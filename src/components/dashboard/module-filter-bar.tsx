@@ -27,10 +27,15 @@ export function ModuleFilterBar({
   const chips = visible.map((key) => ({
     key,
     label: filterLabel(key),
+    // "Lista de la compra" isn't a generic task list — it's its own page
+    // with its own checkable items, so this chip skips the dashboard filter
+    // entirely and goes straight there, same as the global nav already does.
     href:
-      key === ALL_FILTER_KEY
-        ? `/dashboard?${ver ? `ver=${ver}` : ""}`
-        : `/dashboard?modulo=${key}${verSuffix}`,
+      key === "SHOPPING"
+        ? "/compras"
+        : key === ALL_FILTER_KEY
+          ? `/dashboard?${ver ? `ver=${ver}` : ""}`
+          : `/dashboard?modulo=${key}${verSuffix}`,
   }))
 
   return (

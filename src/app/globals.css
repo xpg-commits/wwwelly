@@ -157,7 +157,7 @@
     @apply font-sans;
     /* "un poquito más grande que la actual" — bumps every rem-based size in
        the app at once instead of resizing components one by one. */
-    font-size: 17px;
+    font-size: 18px;
   }
   body {
     @apply text-foreground;

@@ -143,6 +143,23 @@ export const auth = betterAuth({
               required: true,
               defaultValue: DEFAULT_MEMBER_COLOR,
             },
+            // Whether THIS person has closed the "¡Acabas de aterrizar!"
+            // dashboard banner — per-member, not per-household, so closing it
+            // on one person's screen doesn't hide it for the rest.
+            gettingStartedDismissed: {
+              type: "boolean",
+              required: true,
+              defaultValue: false,
+            },
+            // Modules this person has personally chosen to hide from their
+            // own dashboard/nav, layered on top of the household's
+            // enabledModules (which controls what exists for the household
+            // at all, not what any one person wants to see).
+            hiddenModules: {
+              type: "string[]",
+              required: true,
+              defaultValue: [],
+            },
           },
         },
         invitation: {

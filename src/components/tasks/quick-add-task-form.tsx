@@ -76,6 +76,7 @@ export function QuickAddTaskForm({
           placeholder="Fecha"
           className="sm:w-40"
         />
+        <Input type="time" name="dueTime" aria-label="Hora" className="sm:w-32" />
         <Button type="submit" disabled={pending}>
           {pending ? "Añadiendo…" : "Añadir"}
         </Button>

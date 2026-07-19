@@ -18,6 +18,9 @@ import {
 import type { TaskDraft } from "@/lib/ai/schemas"
 import type { HouseholdEntityContext } from "@/lib/ai/taskPlanner"
 
+// TaskDraft's module type is the general (Task-wide) set — the AI itself
+// never actually produces "SHOPPING" (see AiTaskDraftSchema), but the label
+// map still needs every key for the type to check.
 const MODULE_LABEL: Record<TaskDraft["module"], string> = {
   GENERAL: "General",
   HOME: "Hogar",
@@ -25,7 +28,7 @@ const MODULE_LABEL: Record<TaskDraft["module"], string> = {
   PET: "Mascota",
   CHILD: "Niños",
   HEALTH: "Salud",
-  SHOPPING: "Compras",
+  SHOPPING: "Lista de la compra",
 }
 
 function recurrenceLabel(draft: TaskDraft): string | null {

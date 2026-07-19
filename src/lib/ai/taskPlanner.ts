@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod"
 
-import { TaskPlanSchema, type TaskDraft } from "./schemas"
+import { AiTaskPlanSchema, type TaskDraft } from "./schemas"
 
 const client = new Anthropic() // reads ANTHROPIC_API_KEY from env
 
@@ -106,7 +106,7 @@ export async function generatePlanFromText(
       "déjalo en null." +
       formatEntityContext(entityContext),
     messages: [{ role: "user", content: inputText }],
-    output_config: { format: zodOutputFormat(TaskPlanSchema) },
+    output_config: { format: zodOutputFormat(AiTaskPlanSchema) },
   })
 
   // Structured output doesn't guarantee a refusal still matches the schema —

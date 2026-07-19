@@ -1,6 +1,7 @@
 import { db } from "@/lib/db"
 import { computeAvgPurchaseIntervalDays, isDueForRepurchase } from "@/lib/purchaseInterval"
 import { lookupNovaGroup } from "@/lib/openFoodFacts"
+import { categorizeShoppingItem } from "@/lib/ai/shoppingCategorizer"
 
 export async function getOrCreateDefaultList(householdId: string) {
   const existing = await db.shoppingList.findFirst({ where: { householdId } })
@@ -14,12 +15,15 @@ export async function addShoppingItem(
   addedByMemberId: string | null
 ) {
   // Best-effort and awaited — this is a single low-frequency write, not a
-  // hot path, and having the quality dot right on first render beats a
-  // second refresh cycle. Never blocks/fails item creation if it errors.
-  const novaGroup = await lookupNovaGroup(name)
+  // hot path, and having the quality dot / category right on first render
+  // beats a second refresh cycle. Neither ever blocks/fails item creation.
+  const [novaGroup, category] = await Promise.all([
+    lookupNovaGroup(name),
+    categorizeShoppingItem(name),
+  ])
 
   return db.shoppingItem.create({
-    data: { listId, name, status: "ACTIVE", addedByMemberId, novaGroup },
+    data: { listId, name, status: "ACTIVE", addedByMemberId, novaGroup, category },
   })
 }
 

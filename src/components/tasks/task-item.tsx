@@ -17,6 +17,7 @@ type TaskItemProps = {
   id: string
   title: string
   dueDate: Date | null
+  dueTime?: string | null
   overdue?: boolean
   defaultDone?: boolean
   completedAt?: Date | null
@@ -30,6 +31,7 @@ export function TaskItem({
   id,
   title,
   dueDate,
+  dueTime = null,
   overdue = false,
   defaultDone = false,
   completedAt,
@@ -46,8 +48,10 @@ export function TaskItem({
   const dateLabel = completedAt
     ? `Hecha el ${format(completedAt, "d MMM", { locale: es })}`
     : dueDate
-      ? format(dueDate, "d MMM", { locale: es })
-      : null
+      ? format(dueDate, "d MMM", { locale: es }) + (dueTime ? ` · ${dueTime}` : "")
+      : dueTime
+        ? dueTime
+        : null
 
   return (
     <div

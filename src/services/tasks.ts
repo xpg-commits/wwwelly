@@ -13,6 +13,7 @@ export type CreateTaskInput = {
   title: string
   description?: string | null
   dueDate?: Date | null
+  dueTime?: string | null
   module?: TaskModule
   petId?: string | null
   vehicleId?: string | null
@@ -32,6 +33,7 @@ export async function createTask(input: CreateTaskInput) {
       title: input.title,
       description: input.description ?? null,
       dueDate: input.dueDate ?? null,
+      dueTime: input.dueTime ?? null,
       module: input.module ?? "GENERAL",
       petId: input.petId ?? null,
       vehicleId: input.vehicleId ?? null,
@@ -172,7 +174,8 @@ export async function setTaskStatus(taskId: string, done: boolean) {
 
 export type DashboardTasks = {
   today: Awaited<ReturnType<typeof db.task.findMany>>
-  thisWeek: Awaited<ReturnType<typeof db.task.findMany>>
+  tomorrow: Awaited<ReturnType<typeof db.task.findMany>>
+  next7Days: Awaited<ReturnType<typeof db.task.findMany>>
   later: Awaited<ReturnType<typeof db.task.findMany>>
 }
 
@@ -183,7 +186,11 @@ export async function getDashboardTasks(
 ): Promise<DashboardTasks> {
   const now = new Date()
   const todayEnd = endOfDay(now)
-  const weekEnd = endOfDay(addDays(now, 6))
+  const tomorrowStart = startOfDay(addDays(now, 1))
+  const tomorrowEnd = endOfDay(addDays(now, 1))
+  // "En los próximos 7 días" starts the day after mañana — a clean,
+  // non-overlapping partition now that mañana is its own section.
+  const next7End = endOfDay(addDays(now, 8))
 
   const tasks = await db.task.findMany({
     where: {
@@ -202,16 +209,23 @@ export async function getDashboardTasks(
       assignedTo: { include: { user: true } },
       createdBy: { include: { user: true } },
     },
-    orderBy: [{ dueDate: { sort: "asc", nulls: "last" } }, { createdAt: "asc" }],
+    orderBy: [
+      { dueDate: { sort: "asc", nulls: "last" } },
+      { dueTime: { sort: "asc", nulls: "last" } },
+      { createdAt: "asc" },
+    ],
   })
 
   const today = tasks.filter((t) => t.dueDate && t.dueDate <= todayEnd)
-  const thisWeek = tasks.filter(
-    (t) => t.dueDate && t.dueDate > todayEnd && t.dueDate <= weekEnd
+  const tomorrow = tasks.filter(
+    (t) => t.dueDate && t.dueDate >= tomorrowStart && t.dueDate <= tomorrowEnd
   )
-  const later = tasks.filter((t) => !t.dueDate || t.dueDate > weekEnd)
+  const next7Days = tasks.filter(
+    (t) => t.dueDate && t.dueDate > tomorrowEnd && t.dueDate <= next7End
+  )
+  const later = tasks.filter((t) => !t.dueDate || t.dueDate > next7End)
 
-  return { today, thisWeek, later }
+  return { today, tomorrow, next7Days, later }
 }
 
 // Shared write path for anything that produces a batch of TaskDraft[] — the

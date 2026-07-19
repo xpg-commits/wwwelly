@@ -1,13 +1,22 @@
+"use client"
+
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useTransition } from "react"
+import { XIcon } from "lucide-react"
+import { toast } from "sonner"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { buttonVariants } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { dismissGettingStartedBannerAction } from "@/actions/profile"
 
 // Shown on the dashboard while the household hasn't organized any Hogar
 // tasks yet — covers both "just created the household" (zero home tasks by
 // definition) and "invited people but never got round to organizing" (still
 // zero home tasks, so it keeps nudging). Disappears for good the moment a
-// single HOME-module task exists, however it got there.
+// single HOME-module task exists, however it got there, or if this member
+// closes it with the X (per-person, not per-household — see
+// gettingStartedDismissed on HouseholdMember).
 //
 // "Organizar tareas" is always offered, regardless of household size — the
 // reparto wizard works solo too (everything just defaults to fijo when
@@ -21,12 +30,36 @@ export function GettingStartedBanner({
   adultCount: number
   childCount: number
 }) {
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
   const isSolo = adultCount <= 1
 
+  function dismiss() {
+    startTransition(async () => {
+      const result = await dismissGettingStartedBannerAction()
+      if (!result.success) {
+        toast.error(result.error)
+        return
+      }
+      toast.success("Puedes organizar las tareas cuando quieras desde Configuración del hogar.")
+      router.refresh()
+    })
+  }
+
   return (
-    <Card className="border-none bg-secondary/60">
+    <Card className="relative border-none bg-secondary/60">
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label="Cerrar"
+        disabled={pending}
+        onClick={dismiss}
+        className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
+      >
+        <XIcon className="size-4" />
+      </Button>
       <CardContent className="space-y-3 py-5">
-        <div>
+        <div className="pr-8">
           <h2 className="font-heading text-lg font-semibold tracking-tight">
             ¡Acabas de aterrizar!
           </h2>
