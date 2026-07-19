@@ -57,7 +57,9 @@ export default async function ComprasPage() {
           categories.map((group) => (
             <div key={group.name} className="space-y-2">
               <h2 className="text-sm font-medium text-muted-foreground">{group.name}</h2>
-              <div className="space-y-1.5">
+              {/* One card per category, not one per item — rows inside are
+                  flat, divided by a thin line, so more fit on screen at once. */}
+              <div className="divide-y divide-border/60 rounded-2xl bg-card ring-1 ring-foreground/[0.04] shadow-[0_1px_2px_rgba(32,36,45,0.04)]">
                 {group.activeItems.map((item) => (
                   <ShoppingItemRow
                     key={item.id}

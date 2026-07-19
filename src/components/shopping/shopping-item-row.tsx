@@ -52,9 +52,9 @@ export function ShoppingItemRow({
 
   return (
     <div
-      className={`list-row justify-between has-[[data-disabled]]:opacity-60 ${checked ? "bg-muted/50" : ""}`}
+      className="flex items-center justify-between gap-3 px-4 py-2.5 transition-colors hover:bg-muted/40 has-[[data-disabled]]:opacity-60"
     >
-      <label className="flex flex-1 items-center gap-3">
+      <label className="flex flex-1 items-center gap-3 min-w-0">
         <Checkbox
           checked={checked}
           disabled={pending}
@@ -80,7 +80,7 @@ export function ShoppingItemRow({
             aria-hidden
           />
         )}
-        <span className={`flex-1 text-sm ${checked ? "text-muted-foreground line-through" : ""}`}>
+        <span className={`flex-1 truncate text-sm ${checked ? "text-muted-foreground line-through" : ""}`}>
           {name}
           {quantity && <span className="text-muted-foreground"> · {quantity}</span>}
         </span>
