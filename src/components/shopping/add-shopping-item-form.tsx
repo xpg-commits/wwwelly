@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { addShoppingItemAction } from "@/actions/shopping"
 
 export function AddShoppingItemForm() {
@@ -16,7 +17,7 @@ export function AddShoppingItemForm() {
   return (
     <form
       ref={formRef}
-      className="flex gap-2"
+      className="flex flex-col gap-3 sm:flex-row sm:items-end"
       action={(formData: FormData) => {
         startTransition(async () => {
           const result = await addShoppingItemAction(formData)
@@ -29,9 +30,15 @@ export function AddShoppingItemForm() {
         })
       }}
     >
-      <Input name="name" placeholder="Leche, papel, detergente…" required className="flex-1" />
-      <Input name="quantity" placeholder="Cantidad (opcional)" className="w-36" />
-      <Button type="submit" disabled={pending}>
+      <div className="flex-1 space-y-1.5">
+        <Label htmlFor="shopping-name">Producto</Label>
+        <Input id="shopping-name" name="name" placeholder="Leche, papel, detergente…" required />
+      </div>
+      <div className="space-y-1.5 sm:w-36">
+        <Label htmlFor="shopping-quantity">Cantidad (opcional)</Label>
+        <Input id="shopping-quantity" name="quantity" placeholder="Ej: 2kg, 1 docena…" />
+      </div>
+      <Button type="submit" disabled={pending} className="w-full sm:w-auto">
         {pending ? "Añadiendo…" : "Añadir"}
       </Button>
     </form>
