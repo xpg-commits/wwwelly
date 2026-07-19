@@ -182,13 +182,13 @@
    * shadow, instead of a hard border. Lifts and nudges right on hover, eases
    * back on press, so the list feels tactile rather than static. */
   .list-row {
-    @apply flex items-center gap-3.5 rounded-2xl bg-card px-4 py-3.5 shadow-[0_1px_2px_rgba(70,60,140,0.04),0_4px_12px_-4px_rgba(70,60,140,0.08)] ring-1 ring-foreground/[0.04] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_4px_16px_-2px_rgba(70,60,140,0.12),0_8px_24px_-6px_rgba(70,60,140,0.1)] active:translate-y-0 active:scale-[0.995];
+    @apply flex items-center gap-3.5 rounded-2xl bg-card px-4 py-3.5 shadow-[0_1px_2px_rgba(32,36,45,0.04),0_4px_12px_-4px_rgba(32,36,45,0.08)] ring-1 ring-foreground/[0.04] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_4px_16px_-2px_rgba(32,36,45,0.12),0_8px_24px_-6px_rgba(32,36,45,0.1)] active:translate-y-0 active:scale-[0.995];
   }
 
   /* Same lift language for Card, opt-in via data attribute so static cards
    * (forms, settings) don't wobble on hover. */
   .card-interactive {
-    @apply transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(70,60,140,0.14)];
+    @apply transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(32,36,45,0.14)];
   }
 }
 

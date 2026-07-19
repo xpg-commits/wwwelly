@@ -4,10 +4,12 @@ import { auth } from "@/lib/auth"
 import { requireActiveMember } from "@/lib/session"
 import { db } from "@/lib/db"
 import { getDashboardTasks, countCompletedThisWeek } from "@/services/tasks"
+import { getTodaysBirthdays } from "@/services/birthdays"
 import { TaskSection } from "@/components/tasks/task-section"
 import { ModuleFilterBar } from "@/components/dashboard/module-filter-bar"
 import { ViewToggle } from "@/components/dashboard/view-toggle"
 import { GettingStartedBanner } from "@/components/dashboard/getting-started-banner"
+import { BirthdayBanner } from "@/components/dashboard/birthday-banner"
 import { DEFAULT_MODULE_ORDER, isFilterKey, isHouseholdModuleKey, type FilterKey } from "@/lib/modules"
 import { TaskModule } from "@/generated/prisma/enums"
 import { GuidedTour } from "@/components/onboarding/guided-tour"
@@ -33,7 +35,7 @@ export default async function DashboardPage({
   const moduleOrder: FilterKey[] = Array.isArray(rawOrder)
     ? rawOrder.filter(isFilterKey)
     : DEFAULT_MODULE_ORDER
-  const [{ today, thisWeek, later }, completedThisWeek, homeTaskCount, childCount] =
+  const [{ today, thisWeek, later }, completedThisWeek, homeTaskCount, childCount, birthdays] =
     await Promise.all([
       getDashboardTasks(householdId, member, {
         module: activeModule as TaskModule | undefined,
@@ -42,6 +44,7 @@ export default async function DashboardPage({
       countCompletedThisWeek(householdId, member),
       db.task.count({ where: { householdId, module: "HOME" } }),
       db.child.count({ where: { householdId } }),
+      getTodaysBirthdays(householdId),
     ])
 
   const adultCount = (household?.members ?? []).filter(
@@ -63,6 +66,8 @@ export default async function DashboardPage({
           </p>
         )}
       </div>
+
+      <BirthdayBanner birthdays={birthdays} viewerMemberId={member.id} />
 
       {homeTaskCount === 0 && (
         <GettingStartedBanner adultCount={adultCount} childCount={childCount} />

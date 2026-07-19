@@ -44,7 +44,7 @@ export function AddTaskDialog({
           navIcon ? (
             <Button
               size="icon-lg"
-              className="size-12 -translate-y-2.5 rounded-full shadow-[0_4px_14px_-2px_rgba(70,60,140,0.45)] transition-all duration-200 active:scale-90"
+              className="size-12 -translate-y-2.5 rounded-full shadow-[0_4px_14px_-2px_rgba(32,36,45,0.45)] transition-all duration-200 active:scale-90"
               aria-label="Añadir tarea"
               data-tour="add-task-fab"
             >
@@ -53,7 +53,7 @@ export function AddTaskDialog({
           ) : floating ? (
             <Button
               size="icon-lg"
-              className="size-14 rounded-full shadow-[0_6px_20px_-2px_rgba(70,60,140,0.4)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_10px_26px_-2px_rgba(70,60,140,0.5)] active:translate-y-0"
+              className="size-14 rounded-full shadow-[0_6px_20px_-2px_rgba(32,36,45,0.4)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_10px_26px_-2px_rgba(32,36,45,0.5)] active:translate-y-0"
               aria-label="Añadir tarea"
               data-tour="add-task-fab"
             >

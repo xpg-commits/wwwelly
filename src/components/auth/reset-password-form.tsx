@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { Label } from "@/components/ui/label"
 import { authClient } from "@/lib/auth-client"
 
@@ -56,11 +56,11 @@ export function ResetPasswordForm() {
     >
       <div className="space-y-2">
         <Label htmlFor="newPassword">Contraseña nueva</Label>
-        <Input id="newPassword" name="newPassword" type="password" required minLength={8} />
+        <PasswordInput id="newPassword" name="newPassword" required minLength={8} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="confirmPassword">Repítela</Label>
-        <Input id="confirmPassword" name="confirmPassword" type="password" required minLength={8} />
+        <PasswordInput id="confirmPassword" name="confirmPassword" required minLength={8} />
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
       <Button type="submit" className="w-full" disabled={pending}>

@@ -24,6 +24,8 @@ model User {
   householdinvites HouseholdInvite[]
   aiGenerations    AiGeneration[]
 
+  birthDate String?
+
   @@unique([email])
   @@map("user")
 }
@@ -97,7 +99,7 @@ model Household {
 
   enabledModules String[] @default(["HOME", "PET", "VEHICLE", "CHILD", "HEALTH", "SHOPPING"])
 
-  moduleOrder String[] @default(["ALL","HOME","PET","VEHICLE","CHILD","HEALTH","SHOPPING"])
+  moduleOrder String[] @default(["ALL", "HOME", "PET", "VEHICLE", "CHILD", "HEALTH", "SHOPPING"])
 
   @@unique([slug])
   @@map("household")

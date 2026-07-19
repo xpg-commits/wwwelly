@@ -36,7 +36,7 @@ export function ModuleFilterBar({
   return (
     <div
       data-tour="module-filter"
-      className="-mx-6 flex gap-2.5 overflow-x-auto px-6 pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="-mx-6 flex gap-2.5 overflow-x-auto px-6 pt-1.5 pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {chips.map((chip, i) => {
         const isActive = chip.key === (activeModule ?? ALL_FILTER_KEY)
@@ -48,8 +48,8 @@ export function ModuleFilterBar({
             className={cn(
               "stagger-in flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-95",
               isActive
-                ? "bg-primary text-primary-foreground shadow-[0_4px_14px_-2px_rgba(70,60,140,0.35)]"
-                : "bg-card text-muted-foreground shadow-[0_1px_2px_rgba(70,60,140,0.04)] ring-1 ring-foreground/[0.06] hover:text-foreground hover:shadow-[0_4px_12px_-2px_rgba(70,60,140,0.12)]"
+                ? "bg-primary text-primary-foreground"
+                : "bg-card text-muted-foreground shadow-[0_1px_2px_rgba(32,36,45,0.04)] ring-1 ring-foreground/[0.06] hover:text-foreground hover:shadow-[0_4px_12px_-2px_rgba(32,36,45,0.12)]"
             )}
           >
             {chip.label}

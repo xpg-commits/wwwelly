@@ -51,7 +51,7 @@ export function BottomNav({
   return (
     <>
       <nav className="fixed inset-x-0 bottom-4 z-40 flex justify-center md:hidden">
-        <div className="flex items-center gap-1 rounded-full bg-card/90 p-1.5 shadow-[0_8px_24px_-4px_rgba(70,60,140,0.25)] ring-1 ring-foreground/[0.06] backdrop-blur-md">
+        <div className="flex items-center gap-1 rounded-full bg-card/90 p-1.5 shadow-[0_8px_24px_-4px_rgba(32,36,45,0.25)] ring-1 ring-foreground/[0.06] backdrop-blur-md">
           <Link
             href="/dashboard"
             className={cn(

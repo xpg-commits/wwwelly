@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import { organization } from "better-auth/plugins/organization"
+import { emailOTP } from "better-auth/plugins"
 import { nextCookies } from "better-auth/next-js"
 
 import { db } from "@/lib/db"
@@ -32,6 +33,10 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    // Blocks signUp.email() from creating a session until the emailOTP code
+    // below is verified — see emailVerification.autoSignInAfterVerification
+    // for what happens once it is.
+    requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
       await sendEmail({
         to: user.email,
@@ -43,6 +48,24 @@ export const auth = betterAuth({
           <p>Si no lo has pedido tú, puedes ignorar este email.</p>
         `,
       })
+    },
+  },
+  emailVerification: {
+    // Verifying the OTP code logs the user straight in — no separate login
+    // step after registering.
+    autoSignInAfterVerification: true,
+  },
+  user: {
+    additionalFields: {
+      // Captured as a required field in the registration form itself, but
+      // nullable here — existing users have none, and enforcing it at the
+      // database level would need a backfill that doesn't exist for them.
+      // Stored as "yyyy-MM-dd", same convention DatePickerField uses
+      // everywhere else in the app.
+      birthDate: {
+        type: "string",
+        required: false,
+      },
     },
   },
   socialProviders: googleConfigured
@@ -125,6 +148,26 @@ export const auth = betterAuth({
       // user-facing check at invite time lives in src/actions/household.ts.
       membershipLimit: async (_user, organization) =>
         memberLimitForPlan((organization as { planTier?: string }).planTier),
+    }),
+    emailOTP({
+      otpLength: 6,
+      expiresIn: 600, // 10 minutos
+      // Envía el código automáticamente justo tras registrarse — no hace
+      // falta pedirlo aparte desde el cliente.
+      sendVerificationOnSignUp: true,
+      async sendVerificationOTP({ email, otp, type }) {
+        if (type !== "email-verification") return
+        await sendEmail({
+          to: email,
+          subject: "Tu código de verificación de wwwelly",
+          html: `
+            <p>Tu código de verificación es:</p>
+            <p style="font-size: 28px; font-weight: 700; letter-spacing: 4px;">${otp}</p>
+            <p>Caduca en 10 minutos. Si no has creado una cuenta en wwwelly, puedes ignorar
+            este email.</p>
+          `,
+        })
+      },
     }),
     // Must be the last plugin: lets Server Actions set auth cookies directly.
     nextCookies(),

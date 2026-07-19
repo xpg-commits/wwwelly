@@ -16,7 +16,8 @@ export function ForgotPasswordForm() {
     return (
       <p className="text-sm text-muted-foreground">
         Si esa dirección tiene una cuenta en wwwelly, te hemos mandado un enlace para
-        elegir una contraseña nueva. Revisa tu bandeja de entrada.
+        elegir una contraseña nueva. Revisa tu bandeja de entrada — y si no lo ves
+        en un par de minutos, échale un ojo a la carpeta de spam.
       </p>
     )
   }
