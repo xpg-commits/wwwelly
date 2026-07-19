@@ -30,8 +30,8 @@ const CategorizationSchema = z.object({
 // not reasoning, so the fast/cheap model is the right call here too.
 const CATEGORIZER_MODEL = process.env.ANTHROPIC_TASK_PLANNER_MODEL ?? "claude-haiku-4-5"
 
-// Best-effort, same pattern as lookupNovaGroup in services/shopping.ts —
-// never blocks adding the item if it fails; returns null on any error.
+// Best-effort — never blocks adding the item if it fails; returns null on
+// any error.
 export async function categorizeShoppingItem(name: string): Promise<ShoppingCategory | null> {
   try {
     const response = await client.messages.parse({

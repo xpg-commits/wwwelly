@@ -24,7 +24,6 @@ import {
   deleteShoppingItemAction,
 } from "@/actions/shopping"
 import { memberColorVar } from "@/lib/memberColors"
-import { novaGroupColor, novaGroupLabel } from "@/lib/novaGroup"
 
 type Member = { color: string; displayName: string | null; user: { name: string } } | null
 
@@ -32,7 +31,6 @@ export function ShoppingItemRow({
   id,
   name,
   quantity,
-  novaGroup,
   addedBy,
   checked = false,
   checkedBy,
@@ -40,14 +38,12 @@ export function ShoppingItemRow({
   id: string
   name: string
   quantity?: string | null
-  novaGroup?: number | null
   addedBy?: Member
   checked?: boolean
   checkedBy?: Member
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
-  const dotColor = novaGroupColor(novaGroup)
   const addedByName = addedBy?.displayName ?? addedBy?.user.name
 
   return (
@@ -72,14 +68,6 @@ export function ShoppingItemRow({
             })
           }}
         />
-        {dotColor && (
-          <span
-            className="size-2 shrink-0 rounded-full"
-            style={{ backgroundColor: dotColor }}
-            title={novaGroupLabel(novaGroup) ?? undefined}
-            aria-hidden
-          />
-        )}
         <span className={`flex-1 truncate text-sm ${checked ? "text-muted-foreground line-through" : ""}`}>
           {name}
           {quantity && <span className="text-muted-foreground"> · {quantity}</span>}

@@ -447,11 +447,6 @@ model ShoppingItem {
   lastPurchasedAt         DateTime?
   avgPurchaseIntervalDays Int?
 
-  // Best-effort NOVA processing-level lookup (1-4) against Open Food Facts
-  // at the moment the item is added — null when nothing matched, never
-  // blocks adding the item if the lookup fails.
-  novaGroup Int?
-
   addedByMemberId   String?
   checkedByMemberId String?
 

@@ -66,7 +66,6 @@ export default async function ComprasPage() {
                     id={item.id}
                     name={item.name}
                     quantity={item.quantity}
-                    novaGroup={item.novaGroup}
                     addedBy={item.addedBy}
                   />
                 ))}
@@ -79,7 +78,6 @@ export default async function ComprasPage() {
                     id={item.id}
                     name={item.name}
                     quantity={item.quantity}
-                    novaGroup={item.novaGroup}
                     checked
                     checkedBy={item.checkedBy}
                   />
