@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth"
 import { requireActiveMember } from "@/lib/session"
 import { db } from "@/lib/db"
 import { getDashboardTasks, countCompletedThisWeek } from "@/services/tasks"
-import { getTodaysBirthdays } from "@/services/birthdays"
+import { getUpcomingBirthdays } from "@/services/birthdays"
 import { listHabitsForMember } from "@/services/habits"
 import { TaskSection } from "@/components/tasks/task-section"
 import { HabitRow } from "@/components/habits/habit-row"
@@ -66,7 +66,7 @@ export default async function DashboardPage({
     countCompletedThisWeek(householdId, member),
     db.task.count({ where: { householdId, module: "HOME" } }),
     db.child.count({ where: { householdId } }),
-    getTodaysBirthdays(householdId),
+    getUpcomingBirthdays(householdId),
     enabledModules.includes("HABIT") ? listHabitsForMember(member.id) : Promise.resolve([]),
   ])
 

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { createHousehold } from "@/actions/household"
 
-export function CreateHouseholdForm() {
+export function CreateHouseholdForm({ onSuccess }: { onSuccess?: () => void }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
@@ -24,6 +24,7 @@ export function CreateHouseholdForm() {
             return
           }
           router.refresh()
+          onSuccess?.()
         })
       }}
     >

@@ -76,9 +76,10 @@ export default async function AppLayout({
   }
 
   const householdId = session.session.activeOrganizationId
-  const [household, childRows] = await Promise.all([
+  const [household, childRows, myHouseholds] = await Promise.all([
     auth.api.getFullOrganization({ headers: reqHeaders }),
     listChildren(householdId),
+    auth.api.listOrganizations({ headers: reqHeaders }),
   ])
   const childOptions = childRows.map((c) => ({ id: c.id, name: c.name }))
 
@@ -153,7 +154,13 @@ export default async function AppLayout({
               childOptions={childOptions}
             />
           </nav>
-          <UserMenu name={session.user.name} color={myColor} image={session.user.image} />
+          <UserMenu
+            name={session.user.name}
+            color={myColor}
+            image={session.user.image}
+            households={myHouseholds.map((h) => ({ id: h.id, name: h.name }))}
+            activeHouseholdId={householdId}
+          />
         </div>
       </header>
       <main className="flex flex-1 flex-col pb-24 md:pb-0">

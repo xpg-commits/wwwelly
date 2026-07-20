@@ -1,9 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { SettingsIcon } from "lucide-react"
+import { toast } from "sonner"
+import { CheckIcon, PlusIcon, SettingsIcon } from "lucide-react"
 
 import {
   Sheet,
@@ -11,9 +12,18 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { FeatureIdeaDialog } from "@/components/support/feature-idea-dialog"
+import { CreateHouseholdForm } from "@/components/household/create-household-form"
+import { activateHouseholdAction } from "@/actions/household"
 import { authClient } from "@/lib/auth-client"
 import { memberColorVar } from "@/lib/memberColors"
 
@@ -33,15 +43,34 @@ export function UserMenu({
   name,
   color,
   image,
+  households,
+  activeHouseholdId,
 }: {
   name: string
   color: string
   image?: string | null
+  households: { id: string; name: string }[]
+  activeHouseholdId: string
 }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [ideaOpen, setIdeaOpen] = useState(false)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [pending, startTransition] = useTransition()
   const initial = name.trim().charAt(0).toUpperCase() || "?"
+
+  function switchHousehold(id: string) {
+    if (id === activeHouseholdId) return
+    startTransition(async () => {
+      const result = await activateHouseholdAction(id)
+      if (!result.success) {
+        toast.error(result.error)
+        return
+      }
+      setOpen(false)
+      router.refresh()
+    })
+  }
 
   return (
     <>
@@ -68,9 +97,39 @@ export function UserMenu({
             </Avatar>
             <SheetTitle className="whitespace-nowrap">{name}</SheetTitle>
           </SheetHeader>
+
+          <div className="mt-1 space-y-1">
+            <p className="px-1 text-xs font-medium text-muted-foreground">Tus hogares</p>
+            {households.map((h) => (
+              <button
+                key={h.id}
+                type="button"
+                disabled={pending}
+                onClick={() => switchHousehold(h.id)}
+                className="flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-left text-sm whitespace-nowrap transition-colors hover:bg-muted disabled:opacity-60"
+              >
+                <span className="truncate">{h.name}</span>
+                {h.id === activeHouseholdId && (
+                  <CheckIcon className="size-4 shrink-0 text-primary" />
+                )}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false)
+                setCreateOpen(true)
+              }}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <PlusIcon className="size-4" />
+              Crear otro hogar
+            </button>
+          </div>
+
           <Button
             variant="secondary"
-            className="w-full"
+            className="mt-2 w-full"
             onClick={() => {
               setOpen(false)
               setIdeaOpen(true)
@@ -108,6 +167,18 @@ export function UserMenu({
       </Sheet>
 
       <FeatureIdeaDialog open={ideaOpen} onOpenChange={setIdeaOpen} />
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Crear otro hogar</DialogTitle>
+            <DialogDescription>
+              Pasarás a verlo a él — puedes volver a cambiar de hogar cuando quieras desde aquí mismo.
+            </DialogDescription>
+          </DialogHeader>
+          <CreateHouseholdForm onSuccess={() => setCreateOpen(false)} />
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
